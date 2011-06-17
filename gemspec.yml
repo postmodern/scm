@@ -1,0 +1,16 @@
+name: scm
+summary: Ruby interface to common SCMs
+description:
+  SCM is a simple Ruby library for interacting with common SCMs,
+  such as Git, Mercurial (Hg) and SubVersion (SVN).
+
+license: MIT
+authors: Postmodern
+email: postmodern.mod3@gmail.com
+homepage: http://github.com/postmodern/scm
+has_yard: true
+
+development_dependencies:
+  ore-tasks: ~> 0.4
+  rspec: ~> 2.4
+  yard: ~> 0.7.0
