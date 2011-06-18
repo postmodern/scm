@@ -235,6 +235,54 @@ module SCM
       git(:log,*arguments)
     end
 
+    #
+    # Pushes changes to the remote Git repository.
+    #
+    # @param [Hash] options
+    #   Additional options.
+    #
+    # @option options [Boolean] :force
+    #   Specifies whether to force pushing the changes.
+    #
+    # @option options [String, Symbol] :repository
+    #   The remote repository to push to.
+    #
+    # @return [Boolean]
+    #   Specifies whether the changes were successfully pushed.
+    #
+    def push(options={})
+      arguments = []
+
+      arguments << '-f' if options[:force]
+      arguments << options[:repository] if options[:repository]
+
+      git(:push,'--mirror',*arguments)
+    end
+
+    #
+    # Pulls changes from the remote Git repository.
+    #
+    # @param [Hash] options
+    #   Additional options.
+    #
+    # @option options [Boolean] :force
+    #   Specifies whether to force pushing the changes.
+    #
+    # @option options [String, Symbol] :repository
+    #   The remote repository to push to.
+    #
+    # @return [Boolean]
+    #   Specifies whether the changes were successfully pulled.
+    #
+    def pull(options={})
+      arguments = []
+
+      arguments << '-f' if options[:force]
+      arguments << options[:repository] if options[:repository]
+
+      git(:pull,*arguments)
+    end
+
     protected
 
     #

@@ -201,6 +201,36 @@ module SCM
     end
 
     #
+    # Pushes changes to the remote repository.
+    #
+    # @param [Hash] options
+    #   Additional options.
+    #
+    # @return [Boolean]
+    #   Specifies whether the changes were successfully pushed.
+    #
+    # @abstract
+    #
+    def push(options={})
+      false
+    end
+
+    #
+    # Pulls changes from the remote repository.
+    #
+    # @param [Hash] options
+    #   Additional options.
+    #
+    # @return [Boolean]
+    #   Specifies whether the changes were successfully pulled.
+    #
+    # @abstract
+    #
+    def pull(options={})
+      false
+    end
+
+    #
     # Converts the repository to a String.
     #
     # @return [String]

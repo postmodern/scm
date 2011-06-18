@@ -288,6 +288,34 @@ module SCM
       svn(:log,*arguments)
     end
 
+    #
+    # @return [true]
+    #
+    # @note no-op
+    #
+    def push(options={})
+      true
+    end
+
+    #
+    # Pulls changes from the remote SVN repository.
+    #
+    # @param [Hash] options
+    #   Additional options.
+    #
+    # @option options [Boolean] :force
+    #   Specifies whether to force pushing the changes.
+    #
+    # @return [Boolean]
+    #   Specifies whether the changes were successfully pulled.
+    #
+    def pull(options={})
+      arguments = []
+
+      arguments << '-f' if options[:force]
+      svn(:update)
+    end
+
     protected
 
     #

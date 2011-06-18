@@ -237,6 +237,54 @@ module SCM
       hg(:log,*arguments)
     end
 
+    #
+    # Pushes changes to the remote Hg repository.
+    #
+    # @param [Hash] options
+    #   Additional options.
+    #
+    # @option options [Boolean] :force
+    #   Specifies whether to force pushing the changes.
+    #
+    # @option options [String, Symbol] :repository
+    #   The remote repository to push to.
+    #
+    # @return [Boolean]
+    #   Specifies whether the changes were successfully pushed.
+    #
+    def push(options={})
+      arguments = []
+
+      arguments << '-f' if options[:force]
+      arguments << options[:repository] if options[:repository]
+
+      hg(:push,*arguments)
+    end
+
+    #
+    # Pulls changes from the remote Hg repository.
+    #
+    # @param [Hash] options
+    #   Additional options.
+    #
+    # @option options [Boolean] :force
+    #   Specifies whether to force pushing the changes.
+    #
+    # @option options [String, Symbol] :repository
+    #   The remote repository to push to.
+    #
+    # @return [Boolean]
+    #   Specifies whether the changes were successfully pulled.
+    #
+    def pull(options={})
+      arguments = []
+
+      arguments << '-f' if options[:force]
+      arguments << options[:repository] if options[:repository]
+
+      hg(:pull,*arguments)
+    end
+
     protected
 
     #
