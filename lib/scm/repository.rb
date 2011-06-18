@@ -136,7 +136,7 @@ module SCM
     #
     # @abstract
     #
-    def switch_branch(name)
+    def switch_branch!(name)
       false
     end
 

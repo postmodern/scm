@@ -190,7 +190,7 @@ module SCM
     # @return [Boolean]
     #   Specifies whether the branch was successfully switched.
     #
-    def switch_branch(name)
+    def switch_branch!(name)
       branch_dir = if name == 'trunk'
                      @trunk
                    else
