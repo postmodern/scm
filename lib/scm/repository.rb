@@ -210,5 +210,23 @@ module SCM
       @path.to_s
     end
 
+    protected
+
+    #
+    # Runs a command within the repository.
+    #
+    # @param [Symbol] command
+    #   The command to run.
+    #
+    # @param [Array] arguments
+    #   Additional arguments to pass to the command.
+    #
+    # @return [Boolean]
+    #   Specifies whether the SVN command exited successfully.
+    #
+    def run(command,*arguments)
+      Dir.chdir(@path) { super(command,*arguments) }
+    end
+
   end
 end
