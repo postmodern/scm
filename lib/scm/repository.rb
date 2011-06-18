@@ -27,6 +27,8 @@ module SCM
     # @return [Hash{String => Symbol}]
     #   The file paths and their statuses.
     #
+    # @abstract
+    #
     def status(*paths)
       {}
     end
@@ -36,6 +38,8 @@ module SCM
     #
     # @param [Array] paths
     #   The paths of the files/directories to add.
+    #
+    # @abstract
     #
     def add!(*paths)
     end
@@ -51,6 +55,8 @@ module SCM
     #
     # @param [Boolean] force
     #   Specifies whether to force the move.
+    #
+    # @abstract
     #
     def move!(source,dest,force=false)
     end
@@ -70,6 +76,8 @@ module SCM
     # @option options [Boolean] :recursive (false)
     #   Specifies whether to recursively remove the files/directories.
     #
+    # @abstract
+    #
     def remove!(paths,options={})
     end
 
@@ -88,6 +96,8 @@ module SCM
     # @return [Boolean]
     #   Specifies whether the commit was successfully made.
     #
+    # @abstract
+    #
     def commit!(message=nil,options={})
       false
     end
@@ -98,6 +108,8 @@ module SCM
     # @return [Array<String>]
     #   The branch names.
     #
+    # @abstract
+    #
     def branches
       []
     end
@@ -107,6 +119,8 @@ module SCM
     #
     # @return [String]
     #   The name of the current branch.
+    #
+    # @abstract
     #
     def current_branch
     end
@@ -120,6 +134,8 @@ module SCM
     # @return [Boolean]
     #   Specifies whether the branch was successfully switched.
     #
+    # @abstract
+    #
     def switch_branch(name)
       false
     end
@@ -129,6 +145,8 @@ module SCM
     #
     # @return [Array<String>]
     #   The tag names.
+    #
+    # @abstract
     #
     def tags
       []
@@ -146,6 +164,8 @@ module SCM
     # @return [Boolean]
     #   Specifies whether the tag was successfully created.
     #
+    # @abstract
+    #
     def tag!(name,commit=nil)
       false
     end
@@ -158,6 +178,8 @@ module SCM
     #
     # @param [String] :paths
     #   File to list commits for.
+    #
+    # @abstract
     #
     def log(options={})
       false
