@@ -3,6 +3,17 @@
 require 'yaml'
 
 Gem::Specification.new do |gemspec|
+  defaults = {
+    :bin_files => 'bin/*',
+    :files => 'lib/{**/}*.rb',
+    :test_files => '{test/{**/}*_test.rb,spec/{**/}*_spec.rb}',
+    :extra_doc_files => '*.{txt,rdoc,md,markdown,tt,textile}',
+    :version => {
+      :file => 'lib/scm/version.rb',
+      :constant => 'SCM::VERSION'
+    }
+  }
+
   scm = if File.directory?('.git')
           :git
         end
@@ -13,14 +24,6 @@ Gem::Specification.new do |gemspec|
           else
             Dir.glob('{**/}{.*,*}').select { |path| File.file?(path) }
           end
-
-  defaults = {
-    :bin_files => 'bin/*',
-    :files => 'lib/{**/}*.rb',
-    :test_files => '{test/{**/}*_test.rb,spec/{**/}*_spec.rb}',
-    :extra_doc_files => '*.{txt,rdoc,md,markdown,tt,textile}',
-    :version_path => File.join('lib','scm','version.rb')
-  }
 
   expand_files = lambda { |pattern|
     case pattern
@@ -45,10 +48,9 @@ Gem::Specification.new do |gemspec|
                       metadata['version']
                     elsif files.include?('VERSION')
                       File.read('VERSION').chomp
-                    elsif files.include?(defaults[:version_path])
-                      Kernel.load(defaults[:version_path])
-
-                      SCM::VERSION
+                    elsif files.include?(defaults[:version][:file])
+                      require File.join('.',defaults[:version][:file])
+                      eval(defaults[:version][:constant])
                     end
 
   gemspec.summary = metadata.fetch('summary',metadata['description'])
