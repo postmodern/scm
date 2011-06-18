@@ -41,7 +41,7 @@ module SCM
     #
     # @abstract
     #
-    def add!(*paths)
+    def add(*paths)
     end
 
     #
@@ -58,7 +58,7 @@ module SCM
     #
     # @abstract
     #
-    def move!(source,dest,force=false)
+    def move(source,dest,force=false)
     end
 
     #
@@ -78,7 +78,7 @@ module SCM
     #
     # @abstract
     #
-    def remove!(paths,options={})
+    def remove(paths,options={})
     end
 
     #
@@ -98,7 +98,7 @@ module SCM
     #
     # @abstract
     #
-    def commit!(message=nil,options={})
+    def commit(message=nil,options={})
       false
     end
 
@@ -136,7 +136,7 @@ module SCM
     #
     # @abstract
     #
-    def switch_branch!(name)
+    def switch_branch(name)
       false
     end
 
@@ -151,7 +151,7 @@ module SCM
     #
     # @abstract
     #
-    def delete_branch!(name)
+    def delete_branch(name)
       false
     end
 
@@ -181,7 +181,7 @@ module SCM
     #
     # @abstract
     #
-    def tag!(name,commit=nil)
+    def tag(name,commit=nil)
       false
     end
 

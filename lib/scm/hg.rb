@@ -45,7 +45,7 @@ module SCM
     # @param [Array] paths
     #   The paths to add to the repository.
     #
-    def add!(*paths)
+    def add(*paths)
       hg(:add,*paths)
     end
 
@@ -61,7 +61,7 @@ module SCM
     # @param [Boolean] force
     #   Specifies whether to force the move.
     #
-    def move!(source,dest,force=false)
+    def move(source,dest,force=false)
       arguments = []
 
       arguments << '--force' if force
@@ -86,7 +86,7 @@ module SCM
     #   {#remove!} does not respond to the `:recursive` option.
     #   Hg removes directories recursively by default.
     #
-    def remove!(paths,options={})
+    def remove(paths,options={})
       arguments = []
 
       arguments << '--force' if options[:force]
@@ -110,7 +110,7 @@ module SCM
     # @return [Boolean]
     #   Specifies whether the commit was successfully made.
     #
-    def commit!(message=nil,options={})
+    def commit(message=nil,options={})
       arguments = []
       
       if message
@@ -159,7 +159,7 @@ module SCM
     # @return [Boolean]
     #   Specifies whether the branch was successfully switched.
     #
-    def switch_branch!(name)
+    def switch_branch(name)
       hg(:update,name)
     end
 
@@ -172,7 +172,7 @@ module SCM
     # @return [Boolean]
     #   Specifies whether the branch was successfully deleted.
     #
-    def delete_branch!(name)
+    def delete_branch(name)
       hg(:commit,'--close-branch','-m',"Closing #{name}")
     end
 
@@ -204,7 +204,7 @@ module SCM
     # @return [Boolean]
     #   Specifies whether the tag was successfully created.
     #
-    def tag!(name,commit=nil)
+    def tag(name,commit=nil)
       arguments = []
 
       if commit

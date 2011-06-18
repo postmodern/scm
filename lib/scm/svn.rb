@@ -70,7 +70,7 @@ module SCM
     # @param [Array] paths
     #   The paths to add to the repository.
     #
-    def add!(*paths)
+    def add(*paths)
       svn(:add,*paths)
     end
 
@@ -86,7 +86,7 @@ module SCM
     # @param [Boolean] force
     #   Specifies whether to force the move.
     #
-    def move!(source,dest,force=false)
+    def move(source,dest,force=false)
       arguments = []
 
       arguments << '--force' if force
@@ -111,7 +111,7 @@ module SCM
     #   {#remove!} does not respond to the `:recursive` option.
     #   SVN removes directories recursively by default.
     #
-    def remove!(paths,options={})
+    def remove(paths,options={})
       arguments = []
 
       arguments << '--force' if options[:force]
@@ -135,7 +135,7 @@ module SCM
     # @return [Boolean]
     #   Specifies whether the commit was successfully made.
     #
-    def commit!(message=nil,options={})
+    def commit(message=nil,options={})
       arguments = []
       
       if message
@@ -190,7 +190,7 @@ module SCM
     # @return [Boolean]
     #   Specifies whether the branch was successfully switched.
     #
-    def switch_branch!(name)
+    def switch_branch(name)
       branch_dir = if name == 'trunk'
                      @trunk
                    else
@@ -214,7 +214,7 @@ module SCM
     # @return [Boolean]
     #   Specifies whether the branch was successfully deleted.
     #
-    def delete_branch!(name)
+    def delete_branch(name)
       branch_dir = File.join(@branchs,name)
 
       return false unless File.directory?(branch_dir)
@@ -253,7 +253,7 @@ module SCM
     # @raise [ArgumentError
     #   The `commit` argument was specified.
     #
-    def tag!(name,commit=nil)
+    def tag(name,commit=nil)
       if commit
         raise(ArgumentError,"the commit argument is not supported by #{SVN}")
       end
