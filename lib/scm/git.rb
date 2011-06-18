@@ -241,11 +241,23 @@ module SCM
     # @param [Hash] options
     #   Additional options.
     #
+    # @option options [Boolean] :mirror
+    #   Specifies to push all refs under `.git/refs/`.
+    #
+    # @option options [Boolean] :all
+    #   Specifies to push all refs under `.git/refs/heads/`.
+    #
+    # @option options [Boolean] :tags
+    #   Specifies to push all tags.
+    #
     # @option options [Boolean] :force
     #   Specifies whether to force pushing the changes.
     #
     # @option options [String, Symbol] :repository
     #   The remote repository to push to.
+    #
+    # @option options [String, Symbol] :branch
+    #   The specific branch to push.
     #
     # @return [Boolean]
     #   Specifies whether the changes were successfully pushed.
@@ -253,10 +265,23 @@ module SCM
     def push(options={})
       arguments = []
 
+      if options[:mirror]
+        arguments << '--mirror'
+      elsif options[:all]
+        arguments << '--all'
+      elsif options[:tags]
+        arguments << '--tags'
+      end
+
       arguments << '-f' if options[:force]
       arguments << options[:repository] if options[:repository]
 
-      git(:push,'--mirror',*arguments)
+      if options[:branch]
+        arguments << 'origin' unless options[:repository]
+        arguments << options[:branch]
+      end
+
+      git(:push,*arguments)
     end
 
     #
