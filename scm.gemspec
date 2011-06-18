@@ -43,10 +43,12 @@ Gem::Specification.new do |gemspec|
 
   gemspec.version = if metadata['version']
                       metadata['version']
+                    elsif files.include?('VERSION')
+                      File.read('VERSION').chomp
                     elsif files.include?(defaults[:version_path])
                       Kernel.load(defaults[:version_path])
 
-                      Scm::VERSION
+                      SCM::VERSION
                     end
 
   gemspec.summary = metadata.fetch('summary',metadata['description'])
