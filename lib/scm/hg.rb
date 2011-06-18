@@ -164,6 +164,19 @@ module SCM
     end
 
     #
+    # Deletes a branch.
+    #
+    # @param [String] name
+    #   The name of the branch to delete.
+    #
+    # @return [Boolean]
+    #   Specifies whether the branch was successfully deleted.
+    #
+    def delete_branch!(name)
+      hg(:commit,'--close-branch','-m',"Closing #{name}")
+    end
+
+    #
     # Lists Hg tags.
     #
     # @return [Array<String>]

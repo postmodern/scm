@@ -141,6 +141,21 @@ module SCM
     end
 
     #
+    # Deletes a branch.
+    #
+    # @param [String] name
+    #   The name of the branch to delete.
+    #
+    # @return [Boolean]
+    #   Specifies whether the branch was successfully deleted.
+    #
+    # @abstract
+    #
+    def delete_branch!(name)
+      false
+    end
+
+    #
     # Lists tags.
     #
     # @return [Array<String>]

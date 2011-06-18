@@ -206,6 +206,23 @@ module SCM
     end
 
     #
+    # Deletes a branch.
+    #
+    # @param [String] name
+    #   The name of the branch to delete.
+    #
+    # @return [Boolean]
+    #   Specifies whether the branch was successfully deleted.
+    #
+    def delete_branch!(name)
+      branch_dir = File.join(@branchs,name)
+
+      return false unless File.directory?(branch_dir)
+
+      svn(:rm,File.join('..','branchs',name))
+    end
+
+    #
     # Lists tags in the SVN repository.
     #
     # @return [Array<String>]
