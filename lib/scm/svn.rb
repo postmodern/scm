@@ -266,6 +266,23 @@ module SCM
     end
 
     #
+    # Deletes a SVN tag.
+    #
+    # @param [String] name
+    #   The name of the tag.
+    #
+    # @return [Boolean]
+    #   Specifies whether the tag was successfully deleted.
+    #
+    def delete_tag(name)
+      tag_dir = File.join(@tags,name)
+
+      return false unless File.directory?(tag_dir)
+
+      svn(:rm,tag_dir)
+    end
+
+    #
     # Prints a SVN log.
     #
     # @param [String] :commit

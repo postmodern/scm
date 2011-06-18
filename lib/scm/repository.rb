@@ -186,6 +186,21 @@ module SCM
     end
 
     #
+    # Deletes a tag.
+    #
+    # @param [String] name
+    #   The name of the tag.
+    #
+    # @return [Boolean]
+    #   Specifies whether the tag was successfully deleted.
+    #
+    # @abstract
+    #
+    def delete_tag(name)
+      false
+    end
+
+    #
     # Prints a log of commits.
     #
     # @param [String] :commit

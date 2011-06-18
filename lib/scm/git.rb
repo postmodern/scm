@@ -215,6 +215,19 @@ module SCM
     end
 
     #
+    # Deletes a Git tag.
+    #
+    # @param [String] name
+    #   The name of the tag.
+    #
+    # @return [Boolean]
+    #   Specifies whether the tag was successfully deleted.
+    #
+    def delete_tag(name)
+      git(:tag,'-d',name)
+    end
+
+    #
     # Prints the Git log.
     #
     # @param [String] :commit

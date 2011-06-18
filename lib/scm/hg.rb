@@ -215,6 +215,19 @@ module SCM
     end
 
     #
+    # Deletes a Hg tag.
+    #
+    # @param [String] name
+    #   The name of the tag.
+    #
+    # @return [Boolean]
+    #   Specifies whether the tag was successfully deleted.
+    #
+    def delete_tag(name)
+      hg(:tag,'--remove',name)
+    end
+
+    #
     # Prints the Hg log.
     #
     # @param [String] :commit
