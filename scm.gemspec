@@ -3,61 +3,65 @@
 require 'yaml'
 
 Gem::Specification.new do |gemspec|
-  defaults = {
-    :bin_files => 'bin/*',
-    :files => 'lib/{**/}*.rb',
-    :test_files => '{test/{**/}*_test.rb,spec/{**/}*_spec.rb}',
-    :extra_doc_files => '*.{txt,rdoc,md,markdown,tt,textile}',
-    :version => {
-      :file => 'lib/scm/version.rb',
-      :constant => 'SCM::VERSION'
-    }
-  }
-
-  scm = if File.directory?('.git')
-          :git
-        end
-
-  files = case scm
-          when :git
-            `git ls-files -z`.split("\0")
+  files = if File.directory?('.git')
+            `git ls-files`.split($/)
+          elsif File.directory?('.hg')
+            `hg manifest`.split($/)
+          elsif File.directory?('.svn')
+            `svn ls -R`.split($/).select { |path| File.file?(path) }
           else
-            Dir.glob('{**/}{.*,*}').select { |path| File.file?(path) }
+            Dir['{**/}{.*,*}'].select { |path| File.file?(path) }
           end
 
-  expand_files = lambda { |pattern|
-    case pattern
+  filter_files = lambda { |paths|
+    case paths
     when Array
-      pattern
+      (files & paths)
     when String
-      Dir.glob(pattern).select { |path|
-        File.file?(path) && files.include?(path)
-      }
+      (files & Dir[paths])
     end
   }
 
-  metadata = YAML.load_file('gemspec.yml')
+  version = {
+    :file => 'lib/scm/version.rb',
+    :constant => 'SCM::VERSION'
+  }
 
-  gemspec.name = if metadata['name']
-                   metadata['name']
-                 else
-                   File.basename(File.dirname(__FILE__))
-                 end
+  defaults = {
+    'name' => File.basename(File.dirname(__FILE__)),
+    'files' => files,
+    'executables' => filter_files['bin/*'].map { |path| File.basename(path) },
+    'test_files' => filter_files['{test/{**/}*_test.rb,spec/{**/}*_spec.rb}'],
+    'extra_doc_files' => filter_files['*.{txt,rdoc,md,markdown,tt,textile}'],
+  }
 
+  metadata = defaults.merge(YAML.load_file('gemspec.yml'))
+
+  gemspec.name = metadata.fetch('name',defaults[:name])
   gemspec.version = if metadata['version']
                       metadata['version']
-                    elsif files.include?('VERSION')
-                      File.read('VERSION').chomp
-                    elsif files.include?(defaults[:version][:file])
-                      require File.join('.',defaults[:version][:file])
-                      eval(defaults[:version][:constant])
+                    elsif File.file?(version[:file])
+                      require File.join('.',version[:file])
+                      eval(version[:constant])
                     end
 
   gemspec.summary = metadata.fetch('summary',metadata['description'])
   gemspec.description = metadata.fetch('description',metadata['summary'])
-  gemspec.licenses = metadata['license']
 
-  gemspec.authors = metadata['authors']
+  case metadata['license']
+  when Array
+    gemspec.licenses = metadata['license']
+  when String
+    gemspec.license = metadata['license']
+  end
+
+  case metadata['authors']
+  when Array
+    gemspec.authors = metadata['authors']
+  when String
+    gemspec.author = metadata['authors']
+  end
+
   gemspec.email = metadata['email']
   gemspec.homepage = metadata['homepage']
 
@@ -68,37 +72,20 @@ Gem::Specification.new do |gemspec|
     gemspec.require_path = metadata['require_paths']
   end
 
-  gemspec.executables = if metadata['executables']
-                          metadata['executables']
-                        else
-                          expand_files[defaults[:bin_files]].map { |path|
-                            File.basename(path)
-                          }
-                        end
+  gemspec.files = filter_files[metadata['files']]
+
+  gemspec.executables = metadata['executables']
+  gemspec.extensions = metadata['extensions']
 
   if Gem::VERSION < '1.7.'
-    gemspec.default_executable = if metadata['default_executable']
-                                   metadata['default_executable']
-                                 else
-                                   gemspec.executables.first
-                                 end
+    gemspec.default_executable = gemspec.executables.first
   end
+
+  gemspec.test_files = filter_files[metadata['test_files']]
 
   unless gemspec.files.include?('.document')
-    gemspec.extra_rdoc_files = expand_files[defaults[:extra_doc_files]]
+    gemspec.extra_rdoc_files = metadata['extra_doc_files']
   end
-
-  gemspec.files = if metadata['files']
-                    expand_files[metadata['files']]
-                  else
-                    expand_files[defaults[:files]]
-                  end
-
-  gemspec.test_files = if metadata['test_files']
-                         expand_files[metadata['test_files']]
-                       else
-                         expand_files[defaults[:test_files]]
-                       end
 
   gemspec.post_install_message = metadata['post_install_message']
   gemspec.requirements = metadata['requirements']
@@ -111,38 +98,30 @@ Gem::Specification.new do |gemspec|
     gemspec.required_rubygems_version = metadata['required_ruby_version']
   end
 
-  add_dependencies = lambda { |group|
-    method = if group == :default
-               'add_dependency'
-             else
-               if gemspec.respond_to?("add_#{group}_dependency")
-                 "add_#{group}_dependency"
-               else
-                 'add_dependency'
-               end
-             end
-
-    key = if group == :default
-            'dependencies'
-          else
-            "#{group}_dependencies"
-          end
-
-    if metadata.has_key?(key)
-      metadata[key].each do |name,versions|
-        versions = case versions
-                   when Array
-                     versions.map { |v| v.to_s }
-                   when String
-                     versions.split(/,\s*/)
-                   end
-
-        gemspec.send(method,name.to_s,*versions)
-      end
+  parse_versions = lambda { |versions|
+    case versions
+    when Array
+      versions.map { |v| v.to_s }
+    when String
+      versions.split(/,\s*/)
     end
   }
 
-  add_dependencies[:default]
-  add_dependencies['runtime']
-  add_dependencies['development']
+  if metadata['dependencies']
+    metadata['dependencies'].each do |name,versions|
+      gemspec.add_dependency(name,parse_versions[versions])  
+    end
+  end
+
+  if metadata['runtime_dependencies']
+    metadata['runtime_dependencies'].each do |name,versions|
+      gemspec.add_runtime_dependency(name,parse_versions[versions])  
+    end
+  end
+
+  if metadata['development_dependencies']
+    metadata['development_dependencies'].each do |name,versions|
+      gemspec.add_development_dependency(name,parse_versions[versions])  
+    end
+  end
 end
