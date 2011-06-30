@@ -6,6 +6,12 @@ module SCM
   #
   class Hg < Repository
 
+    Commit = Struct.new :revision,
+                        :hash    ,
+                        :branch  ,
+                        :user    ,
+                        :date    ,
+                        :summary 
     # Hg status codes
     STATUSES = {
       'M' => :modified,
@@ -296,6 +302,31 @@ module SCM
       arguments << options[:repository] if options[:repository]
 
       hg(:pull,*arguments)
+    end
+
+    def commits
+      commits = []
+      commit  = Commit.new
+      
+      popen "hg log" do |line|
+        case line
+        when /changeset:\s+(\d+):(.+)/
+          commit.revision = $1
+          commit.hash = $2
+        when /branch:\s+(.+)/
+          commit.branch = $1
+        when /user:\s+(.+)/
+          commit.user = $1
+        when /date:\s+(.+)/
+          commit.date = Time.parse $1
+        when /summary:\s+(.+)/
+          commit.summary = $1
+          commits.push commit
+          commit = Commit.new
+        end
+      end
+
+      commits
     end
 
     protected
