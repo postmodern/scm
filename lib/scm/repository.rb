@@ -256,7 +256,7 @@ module SCM
     # @abstract
     #
     def commits
-      raise NotImplementedError, 'This method is not implemented for this SCM.' 
+      raise(NotImplementedError,"This method is not implemented for #{self.class}")
     end
 
     #
