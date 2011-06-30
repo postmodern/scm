@@ -246,6 +246,20 @@ module SCM
     end
 
     #
+    # Lists commits.
+    #
+    # @return [Array<SCM::Commit>] 
+    #
+    # @raise  [NotImplementedError]
+    #   If a subclass does not provide its own implementation.
+    #
+    # @abstract
+    #
+    def commits
+      raise NotImplementedError, 'This method is not implemented for this SCM.' 
+    end
+
+    #
     # Converts the repository to a String.
     #
     # @return [String]
