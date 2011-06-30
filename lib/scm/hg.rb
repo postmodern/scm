@@ -304,11 +304,43 @@ module SCM
       hg(:pull,*arguments)
     end
 
-    def commits
+    #
+    # Lists the commits in the Hg repository.
+    #
+    # @param [Hash] options
+    #   Additional options.
+    #
+    # @option options [String] :commit
+    #   Commit to start at.
+    #
+    # @option options [Symbol, String] :branch
+    #   The branch to list commits within.
+    #
+    # @option options [Integer] :limit
+    #   The number of commits to list.
+    #
+    # @return [Array<Commit>]
+    #   The commits in the repository.
+    #
+    def commits(options={})
       commits = []
       commit  = Commit.new
+
+      arguments = []
+
+      if options[:commit]
+        arguments << '--rev' << options[:commit]
+      end
+
+      if options[:branch]
+        arguments << '--branch' << options[:branch]
+      end
+
+      if options[:limit]
+        arguments << '--limit' << options[:limit]
+      end
       
-      popen('hg log') do |line|
+      popen('hg log',*arguments) do |line|
         if line.empty?
           commits.push commit
           commit = Commit.new

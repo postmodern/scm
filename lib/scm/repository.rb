@@ -248,14 +248,18 @@ module SCM
     #
     # Lists commits.
     #
+    # @param [Hash] options
+    #   Additional options.
+    #
     # @return [Array<SCM::Commit>] 
+    #   The commits within the repository.
     #
     # @raise  [NotImplementedError]
     #   If a subclass does not provide its own implementation.
     #
     # @abstract
     #
-    def commits
+    def commits(options={})
       raise(NotImplementedError,"This method is not implemented for #{self.class}")
     end
 
