@@ -273,5 +273,27 @@ module SCM
       Dir.chdir(@path) { super(command,*arguments) }
     end
 
+    #
+    # Runs a command as a separate process.
+    #
+    # @param [Symbol] command
+    #   The command to run.
+    #
+    # @param [Array] arguments
+    #   Additional arguments to pass to the command.
+    #
+    # @yield [line]
+    #   The given block will be passed each line read-in.
+    #
+    # @yieldparam [String] line
+    #   A line read from the program.
+    #
+    # @return [IO]
+    #   The stdout of the command being ran.
+    #
+    def popen(command,*arguments)
+      Dir.chdir(@path) { super(command,*arguments) }
+    end
+
   end
 end
