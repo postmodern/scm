@@ -41,6 +41,8 @@ module SCM
     #   The stdout of the command being ran.
     #
     def popen(command,*arguments)
+      Dir.chdir @path
+
       unless arguments.empty?
         command = command.dup
 
