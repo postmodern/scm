@@ -312,7 +312,7 @@ module SCM
     # @return [Boolean]
     #   Specifies whether the Hg command exited successfully.
     #
-    def svn(command,*arguments)
+    def hg(command,*arguments)
       run(:hg,command,*arguments)
     end
 
