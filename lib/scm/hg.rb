@@ -308,25 +308,29 @@ module SCM
       commits = []
       commit  = Commit.new
       
-      popen "hg log" do |line|
-        case line
-        when /changeset:\s+(\d+):(.+)/
-          commit.revision = $1
-          commit.hash = $2
-        when /branch:\s+(.+)/
-          commit.branch = $1
-        when /user:\s+(.+)/
-          commit.user = $1
-        when /date:\s+(.+)/
-          commit.date = Time.parse $1
-        when /summary:\s+(.+)/
-          commit.summary = $1
+      popen('hg log') do |line|
+        if line.empty?
           commits.push commit
           commit = Commit.new
+        else
+          key, value = line.split(' ',2)
+
+          case key
+          when 'changeset:'
+            commit.revision, commit.hash = value.split(':',2)
+          when 'branch:'
+            commit.branch = value
+          when 'user:'
+            commit.user = value
+          when 'date:'
+            commit.date = Time.parse(value)
+          when 'summary:'
+            commit.summary = value
+          end
         end
       end
 
-      commits
+      return commits
     end
 
     protected
