@@ -251,7 +251,7 @@ module SCM
     # @param [Hash] options
     #   Additional options.
     #
-    # @return [Array<SCM::Commit>] 
+    # @return [Enumerator<SCM::Commit>] 
     #   The commits within the repository.
     #
     # @raise  [NotImplementedError]

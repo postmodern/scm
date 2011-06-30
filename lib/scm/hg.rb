@@ -319,12 +319,11 @@ module SCM
     # @option options [Integer] :limit
     #   The number of commits to list.
     #
-    # @return [Array<Commit>]
+    # @return [Enumerator<Commit>]
     #   The commits in the repository.
     #
     def commits(options={})
-      commits = []
-      commit  = Commit.new
+      return enum_for(:commits,options) unless block_given?
 
       arguments = []
 
@@ -340,9 +339,11 @@ module SCM
         arguments << '--limit' << options[:limit]
       end
       
+      commit = Commit.new
+
       popen('hg log',*arguments) do |line|
         if line.empty?
-          commits.push commit
+          yield commit
           commit = Commit.new
         else
           key, value = line.split(' ',2)
@@ -361,8 +362,6 @@ module SCM
           end
         end
       end
-
-      return commits
     end
 
     protected
