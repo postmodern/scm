@@ -314,6 +314,9 @@ module SCM
     # @option options [Integer] :limit
     #   The number of commits to list.
     #
+    # @option options [String, Array<String>] :paths
+    #   The path(s) to list commits for.
+    #
     # @yield [commit]
     #   The given block will be passed each commit.
     #
@@ -338,6 +341,10 @@ module SCM
 
       if options[:limit]
         arguments << '--limit' << options[:limit]
+      end
+
+      if options[:paths]
+        arguments.push(*options[:paths])
       end
       
       revision = nil
