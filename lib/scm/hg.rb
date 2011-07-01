@@ -1,4 +1,5 @@
 require 'scm/repository'
+require 'scm/commits/hg'
 
 module SCM
   #
@@ -6,12 +7,6 @@ module SCM
   #
   class Hg < Repository
 
-    Commit = Struct.new :revision,
-                        :hash    ,
-                        :branch  ,
-                        :user    ,
-                        :date    ,
-                        :summary 
     # Hg status codes
     STATUSES = {
       'M' => :modified,
@@ -348,7 +343,7 @@ module SCM
 
       popen('hg log',*arguments) do |line|
         if line.empty?
-          yield Commit.new(revision,hash,branch,user,date,summary)
+          yield Commits::Hg.new(revision,hash,branch,user,date,summary)
 
           revision = hash = branch = user = date = summary = nil
         else
