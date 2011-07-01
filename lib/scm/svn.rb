@@ -1,4 +1,5 @@
 require 'scm/repository'
+require 'scm/commits/svn'
 
 module SCM
   #
@@ -19,6 +20,8 @@ module SCM
       '!' => :missing,
       '~' => :obstructed
     }
+
+    LOG_SEPARATOR = '------------------------------------------------------------------------'
 
     #
     # Initializes the SVN repository.
@@ -331,6 +334,85 @@ module SCM
 
       arguments << '-f' if options[:force]
       svn(:update)
+    end
+
+    #
+    # Lists the commits in the SVN repository.
+    #
+    # @param [Hash] options
+    #   Additional options.
+    #
+    # @option options [String] :commit
+    #   Commit to start at.
+    #
+    # @option options [Symbol, String] :branch
+    #   The branch to list commits within.
+    #
+    # @option options [Integer] :limit
+    #   The number of commits to list.
+    #
+    # @option options [String, Array<String>] :paths
+    #   The path(s) to list commits for.
+    #
+    # @yield [commit]
+    #   The given block will be passed each commit.
+    #
+    # @yieldparam [Commits::SVN] commit
+    #   A commit from the repository.
+    #
+    # @return [Enumerator<Commits::SVN>]
+    #   The commits in the repository.
+    #
+    def commits(options={})
+      return enum_for(:commits,options) unless block_given?
+
+      arguments = []
+
+      if options[:commit]
+        arguments << '--revision' << options[:commit]
+      end
+
+      if options[:limit]
+        arguments << '--limit' << options[:limit]
+      end
+
+      if options[:paths]
+        arguments.push(*options[:paths])
+      end
+
+      revision = nil
+      date     = nil
+      author   = nil
+      summary  = ''
+
+      io = popen('svn log',*arguments)
+
+      # eat the first LOG_SEPARATOR
+      io.readline
+
+      until io.eof?
+        line = io.readline
+        line.chomp!
+
+        revision, author, date, changes = line.split(' | ',4)
+        revision = revision[1..-1].to_i
+        date = Time.parse(date)
+
+        # eat the empty line separating the metadata from the summary
+        line.readline
+
+        loop do
+          line = io.readline
+          break if line == LOG_SEPARATOR
+
+          summary << line
+        end
+
+        yield Commits::SVN.new(revision,date,author,summary)
+
+        revision = date = author = nil
+        summary = ''
+      end
     end
 
     protected
