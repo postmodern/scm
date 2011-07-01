@@ -339,26 +339,32 @@ module SCM
         arguments << '--limit' << options[:limit]
       end
       
-      commit = Commit.new
+      revision = nil
+      hash     = nil
+      branch   = nil
+      user     = nil
+      date     = nil
+      summary  = nil
 
       popen('hg log',*arguments) do |line|
         if line.empty?
-          yield commit
-          commit = Commit.new
+          yield Commit.new(revision,hash,branch,user,date,summary)
+
+          revision = hash = branch = user = date = summary = nil
         else
           key, value = line.split(' ',2)
 
           case key
           when 'changeset:'
-            commit.revision, commit.hash = value.split(':',2)
+            revision, hash = value.split(':',2)
           when 'branch:'
-            commit.branch = value
+            branch = value
           when 'user:'
-            commit.user = value
+            user = value
           when 'date:'
-            commit.date = Time.parse(value)
+            date = Time.parse(value)
           when 'summary:'
-            commit.summary = value
+            summary = value
           end
         end
       end
