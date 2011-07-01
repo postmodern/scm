@@ -337,6 +337,12 @@ module SCM
     # @option options [Integer] :limit
     #   The number of commits to list.
     #
+    # @yield [commit]
+    #   The given block will be passed each commit.
+    #
+    # @yieldparam [Commits::Git] commit
+    #   A commit from the repository.
+    #
     # @return [Enumerator<Commits::Git>]
     #   The commits in the repository.
     #

@@ -314,7 +314,13 @@ module SCM
     # @option options [Integer] :limit
     #   The number of commits to list.
     #
-    # @return [Enumerator<Commit>]
+    # @yield [commit]
+    #   The given block will be passed each commit.
+    #
+    # @yieldparam [Commits::Hg] commit
+    #   A commit from the repository.
+    #
+    # @return [Enumerator<Commits::Hg>]
     #   The commits in the repository.
     #
     def commits(options={})
