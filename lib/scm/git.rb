@@ -1,4 +1,5 @@
 require 'scm/repository'
+require 'scm/commits/git'
 
 module SCM
   #
@@ -319,6 +320,60 @@ module SCM
       arguments << options[:repository] if options[:repository]
 
       git(:pull,*arguments)
+    end
+
+    #
+    # Lists the commits in the Git repository.
+    #
+    # @param [Hash] options
+    #   Additional options.
+    #
+    # @option options [String] :commit
+    #   Commit to start at.
+    #
+    # @option options [Symbol, String] :branch
+    #   The branch to list commits within.
+    #
+    # @option options [Integer] :limit
+    #   The number of commits to list.
+    #
+    # @return [Enumerator<Commits::Git>]
+    #   The commits in the repository.
+    #
+    def commits(options={})
+      return enum_for(:commits,options) unless block_given?
+
+      arguments = ["--pretty=format:'%H|%P|%T|%at|%an|%ae|%s'"]
+
+      if options[:limit]
+        arguments << "-#{options[:limit]}"
+      end
+
+      if (options[:commit] || options[:branch])
+        arguments << (options[:commit] || options[:branch])
+      end
+
+      commit = nil
+      parent = nil
+      tree   = nil
+      tree   = nil
+      parent = nil
+      author = nil
+      date   = nil
+
+      popen('git log',*arguments) do |line|
+        commit, parent, tree, date, author, email, summary = line.split('|',5)
+
+        yield Commits::Git.new(
+          commit,
+          parent,
+          tree,
+          Time.at(date.to_i),
+          author,
+          email,
+          summary
+        )
+      end
     end
 
     protected
