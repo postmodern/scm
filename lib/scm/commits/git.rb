@@ -45,6 +45,8 @@ module SCM
         @email = email
       end
 
+      alias sha1 commit
+
     end
   end
 end
