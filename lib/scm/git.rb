@@ -352,7 +352,7 @@ module SCM
     def commits(options={})
       return enum_for(:commits,options) unless block_given?
 
-      arguments = ["--pretty=format:'%H|%P|%T|%at|%an|%ae|%s'"]
+      arguments = ["--pretty=format:%H|%P|%T|%at|%an|%ae|%s"]
 
       if options[:limit]
         arguments << "-#{options[:limit]}"
