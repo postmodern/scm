@@ -1,4 +1,5 @@
 require 'scm/repository'
+require 'scm/commits/hg'
 
 module SCM
   #
@@ -298,6 +299,85 @@ module SCM
       hg(:pull,*arguments)
     end
 
+    #
+    # Lists the commits in the Hg repository.
+    #
+    # @param [Hash] options
+    #   Additional options.
+    #
+    # @option options [String] :commit
+    #   Commit to start at.
+    #
+    # @option options [Symbol, String] :branch
+    #   The branch to list commits within.
+    #
+    # @option options [Integer] :limit
+    #   The number of commits to list.
+    #
+    # @option options [String, Array<String>] :paths
+    #   The path(s) to list commits for.
+    #
+    # @yield [commit]
+    #   The given block will be passed each commit.
+    #
+    # @yieldparam [Commits::Hg] commit
+    #   A commit from the repository.
+    #
+    # @return [Enumerator<Commits::Hg>]
+    #   The commits in the repository.
+    #
+    def commits(options={})
+      return enum_for(:commits,options) unless block_given?
+
+      arguments = []
+
+      if options[:commit]
+        arguments << '--rev' << options[:commit]
+      end
+
+      if options[:branch]
+        arguments << '--branch' << options[:branch]
+      end
+
+      if options[:limit]
+        arguments << '--limit' << options[:limit]
+      end
+
+      if options[:paths]
+        arguments.push(*options[:paths])
+      end
+      
+      revision = nil
+      hash     = nil
+      branch   = nil
+      user     = nil
+      date     = nil
+      summary  = nil
+
+      popen('hg log',*arguments) do |line|
+        if line.empty?
+          yield Commits::Hg.new(revision,hash,branch,user,date,summary)
+
+          revision = hash = branch = user = date = summary = nil
+        else
+          key, value = line.split(' ',2)
+
+          case key
+          when 'changeset:'
+            revision, hash = value.split(':',2)
+          when 'branch:'
+            branch = value
+          when 'user:'
+            user = value
+          when 'date:'
+            date = Time.parse(value)
+          when 'summary:'
+            summary = value
+          end
+        end
+      end
+    end
+
     protected
 
     #
@@ -312,7 +392,7 @@ module SCM
     # @return [Boolean]
     #   Specifies whether the Hg command exited successfully.
     #
-    def svn(command,*arguments)
+    def hg(command,*arguments)
       run(:hg,command,*arguments)
     end
 
