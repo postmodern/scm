@@ -375,7 +375,7 @@ module SCM
       date   = nil
 
       popen('git log',*arguments) do |line|
-        commit, parent, tree, date, author, email, summary = line.split('|',5)
+        commit, parent, tree, date, author, email, summary = line.split('|',7)
 
         yield Commits::Git.new(
           commit,
