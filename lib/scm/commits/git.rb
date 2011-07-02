@@ -47,6 +47,16 @@ module SCM
 
       alias sha1 commit
 
+      #
+      # Coerces the Git commit into an Array.
+      #
+      # @return [Array<commit, parent, tree, date, author, email, summary>]
+      #   The commit components.
+      #
+      def to_ary
+        [@commit, @parent, @tree, @date, @author, @email, @summary]
+      end
+
     end
   end
 end

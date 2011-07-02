@@ -54,6 +54,16 @@ module SCM
         @commit.to_i
       end
 
+      #
+      # Coerces the Hg commit into an Array.
+      #
+      # @return [Array<commit, hash, branch, date, author, summary>]
+      #   The commit components.
+      #
+      def to_ary
+        [@commit, @hash, @branch, @date, @user, @summary]
+      end
+
     end
   end
 end
