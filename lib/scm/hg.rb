@@ -154,7 +154,7 @@ module SCM
     #
     # Swtiches to another Hg branch.
     #
-    # @param [String] name
+    # @param [String, Symbol] name
     #   The name of the branch to switch to.
     #
     # @return [Boolean]

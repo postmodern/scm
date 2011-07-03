@@ -185,7 +185,7 @@ module SCM
     #
     # Swtiches to another SVN branch.
     #
-    # @param [String] name
+    # @param [String, Symbol] name
     #   The name of the branch to switch to.
     #   The name may also be `trunk`, to switch back to the `trunk`
     #   directory.
@@ -194,6 +194,7 @@ module SCM
     #   Specifies whether the branch was successfully switched.
     #
     def switch_branch(name)
+      name = name.to_s
       branch_dir = if name == 'trunk'
                      @trunk
                    else

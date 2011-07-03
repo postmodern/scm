@@ -157,7 +157,7 @@ module SCM
     #
     # Swtiches to another Git branch.
     #
-    # @param [String] name
+    # @param [String, Symbol] name
     #   The name of the branch to switch to.
     #
     # @return [Boolean]
