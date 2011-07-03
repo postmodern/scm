@@ -35,6 +35,22 @@ module SCM
     end
 
     #
+    # Clones a remote repository.
+    #
+    # @param [URI, String] uri
+    #   The URI of the remote repository.
+    #
+    # @param [Hash] options
+    #   Additional options.
+    #
+    # @return [Boolean]
+    #   Specifies whether the clone was successful.
+    #
+    def self.clone(uri,options={})
+      false
+    end
+
+    #
     # Queries the status of the files.
     #
     # @param [Array] paths

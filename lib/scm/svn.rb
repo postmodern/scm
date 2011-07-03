@@ -59,6 +59,44 @@ module SCM
     end
 
     #
+    # Checks out a remote SVN repository.
+    #
+    # @param [URI, String] uri
+    #   The URI of the remote repository.
+    #
+    # @param [Hash] options
+    #   Additional options.
+    #
+    # @option options [String, Integer] :commits
+    #   The commits to include.
+    #
+    # @option options [String] :dest
+    #   The destination directory to clone into.
+    #
+    # @return [Boolean]
+    #   Specifies whether the clone was successful.
+    #
+    def self.checkout(uri,options={})
+      arguments = []
+
+      if options[:commits]
+        arguments << '--revision' << options[:commits]
+      end
+
+      arguments << uri
+      arguments << options[:dest] if options[:dest]
+
+      system('svn','checkout',*arguments)
+    end
+
+    #
+    # @see checkout
+    #
+    def self.clone(uri,options={})
+      checkout(uri,options)
+    end
+
+    #
     # Queries the status of the repository.
     #
     # @param [Array] paths

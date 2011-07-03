@@ -46,6 +46,60 @@ module SCM
     end
 
     #
+    # Clones a remote Git repository.
+    #
+    # @param [URI, String] uri
+    #   The URI of the remote repository.
+    #
+    # @param [Hash] options
+    #   Additional options.
+    #
+    # @option options [Boolean] :bare
+    #   Performs a bare clone of the repository.
+    #
+    # @option options [Boolean] :mirror
+    #   Mirrors the remote repository.
+    #
+    # @option options [Integer] :depth
+    #   Performs a shallow clone.
+    #
+    # @option options [Boolean] :submodules
+    #   Recursively initialize each sub-module.
+    #
+    # @option options [String, Symbol] :branch
+    #   The branch to specifically clone.
+    #
+    # @option options [String] :dest
+    #   The destination directory to clone into.
+    #
+    # @return [Boolean]
+    #   Specifies whether the clone was successful.
+    #
+    def self.clone(uri,options={})
+      arguments = []
+
+      arguments << '--bare'   if options[:bare]
+      arguments << '--mirror' if options[:mirror]
+
+      if options[:depth]
+        arguments << '--depth' << options[:depth]
+      end
+
+      if options[:branch]
+        arguments << '--branch' << options[:branch]
+      end
+
+      arguments << '--recurse-submodules' if options[:submodules]
+
+      arguments << '--' unless arguments.empty?
+
+      arguments << uri
+      arguments << options[:dest] if options[:dest]
+
+      system('git','clone',*arguments)
+    end
+
+    #
     # Queries the status of the repository.
     #
     # @param [Array] paths

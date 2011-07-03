@@ -37,6 +37,44 @@ module SCM
     end
 
     #
+    # Clones a remote Hg repository.
+    #
+    # @param [URI, String] uri
+    #   The URI of the remote repository.
+    #
+    # @param [Hash] options
+    #   Additional options.
+    #
+    # @option options [String, Integer] :commits
+    #   The commits to include.
+    #
+    # @option options [String, Symbol] :branch
+    #   The branch to specifically clone.
+    #
+    # @option options [String] :dest
+    #   The destination directory to clone into.
+    #
+    # @return [Boolean]
+    #   Specifies whether the clone was successful.
+    #
+    def self.clone(uri,options={})
+      arguments = []
+
+      if options[:commits]
+        arguments << '--rev' << options[:commits]
+      end
+
+      if options[:branch]
+        arguments << '--branch' << options[:branch]
+      end
+
+      arguments << uri
+      arguments << options[:dest] if options[:dest]
+
+      system('hg','clone',*arguments)
+    end
+
+    #
     # Queries the status of the repository.
     #
     # @param [Array] paths
