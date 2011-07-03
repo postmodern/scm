@@ -30,6 +30,8 @@ module SCM
     # @return [Boolean]
     #   Specifies whether the repository was successfully created.
     #
+    # @abstract
+    #
     def self.create(path,options={})
       false
     end
@@ -45,6 +47,8 @@ module SCM
     #
     # @return [Boolean]
     #   Specifies whether the clone was successful.
+    #
+    # @abstract
     #
     def self.clone(uri,options={})
       false
