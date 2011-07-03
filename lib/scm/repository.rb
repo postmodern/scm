@@ -19,6 +19,22 @@ module SCM
     end
 
     #
+    # Creates a new repository.
+    #
+    # @param [String] path
+    #   Path to the repository.
+    #
+    # @param [Hash] options
+    #   Additional options.
+    #
+    # @return [Boolean]
+    #   Specifies whether the repository was successfully created.
+    #
+    def self.create(path,options={})
+      false
+    end
+
+    #
     # Queries the status of the files.
     #
     # @param [Array] paths

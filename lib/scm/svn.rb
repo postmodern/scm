@@ -46,6 +46,19 @@ module SCM
     end
 
     #
+    # Creates an SVN repository.
+    #
+    # @param [String] path
+    #   The path to the repository.
+    #
+    # @return [Boolean]
+    #   Specifies whether the repository was successfully created.
+    #
+    def self.create(path,options={})
+      system('svnadmin','create',path)
+    end
+
+    #
     # Queries the status of the repository.
     #
     # @param [Array] paths

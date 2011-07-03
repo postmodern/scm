@@ -20,6 +20,23 @@ module SCM
     }
 
     #
+    # Creates a Hg repository.
+    #
+    # @param [String] path
+    #   The path to the repository.
+    #
+    # @return [Boolean]
+    #   Specifies whether the repository was successfully created.
+    #
+    def self.create(path,options={})
+      unless path.start_with?('ssh://')
+        FileUtils.mkdir_p(path)
+      end
+
+      system('hg','init',path)
+    end
+
+    #
     # Queries the status of the repository.
     #
     # @param [Array] paths

@@ -20,6 +20,32 @@ module SCM
     }
 
     #
+    # Creates a Git repository.
+    #
+    # @param [String] path
+    #   The path to the repository.
+    #
+    # @param [Hash] options
+    #   Additional options.
+    #
+    # @option options [Boolean] :bare
+    #   Specifies whether to create a bare repository.
+    #
+    # @return [Boolean]
+    #   Specifies whether the repository was successfully created.
+    #
+    def self.create(path,options={})
+      FileUtils.mkdir_p(path)
+
+      arguments = []
+
+      arguments << '--bare' if options[:bare]
+      arguments << path
+
+      system('git','init',*arguments)
+    end
+
+    #
     # Queries the status of the repository.
     #
     # @param [Array] paths
