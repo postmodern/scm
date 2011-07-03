@@ -331,9 +331,9 @@ module SCM
     #
     def pull(options={})
       arguments = []
-
       arguments << '-f' if options[:force]
-      svn(:update)
+
+      svn(:update,*arguments)
     end
 
     #
