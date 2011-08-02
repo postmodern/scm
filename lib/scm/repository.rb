@@ -1,5 +1,7 @@
 require 'scm/util'
 
+require 'pathname'
+
 module SCM
   class Repository
 
@@ -15,7 +17,7 @@ module SCM
     #   The path to the repository.
     #
     def initialize(path)
-      @path = File.expand_path(path)
+      @path = Pathname.new(File.expand_path(path))
     end
 
     #
