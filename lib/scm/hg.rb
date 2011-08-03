@@ -1,6 +1,8 @@
 require 'scm/repository'
 require 'scm/commits/hg'
 
+require 'uri'
+
 module SCM
   #
   # Interacts with Mercurial (Hg) repositories.
@@ -25,15 +27,27 @@ module SCM
     # @param [String] path
     #   The path to the repository.
     #
-    # @return [Boolean]
-    #   Specifies whether the repository was successfully created.
+    # @return [Hg, URI::Generic]
+    #   The initialized local Hg repository or the URI to the remote
+    #   repository.
+    #
+    # @raise [RuntimeError]
+    #   Could not initialize the Hg repository.
     #
     def self.create(path,options={})
       unless path.start_with?('ssh://')
         FileUtils.mkdir_p(path)
       end
 
-      system('hg','init',path)
+      unless (result = system('hg','init',path))
+        raise("unable to initialize Hg repository #{path.dump}")
+      end
+
+      if path.start_with?('ssh://')
+        return URI(path)
+      else
+        return new(path)
+      end
     end
 
     #

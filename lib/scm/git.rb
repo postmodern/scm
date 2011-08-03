@@ -31,18 +31,27 @@ module SCM
     # @option options [Boolean] :bare
     #   Specifies whether to create a bare repository.
     #
-    # @return [Boolean]
-    #   Specifies whether the repository was successfully created.
+    # @return [Git]
+    #   The initialized Git repository.
+    #
+    # @raise [RuntimeError]
+    #   Could not initialize the Git repository.
     #
     def self.create(path,options={})
-      FileUtils.mkdir_p(path)
+      path = File.expand_path(path)
 
       arguments = []
 
       arguments << '--bare' if options[:bare]
       arguments << path
 
-      system('git','init',*arguments)
+      FileUtils.mkdir_p(path)
+
+      unless system('git','init',*arguments)
+        raise("unable to initialize Git repository #{path.dump}")
+      end
+
+      return new(path)
     end
 
     #

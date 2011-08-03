@@ -29,13 +29,13 @@ module SCM
     # @param [Hash] options
     #   Additional options.
     #
-    # @return [Boolean]
-    #   Specifies whether the repository was successfully created.
+    # @return [Repository]
+    #   The newly created repository.
     #
     # @abstract
     #
     def self.create(path,options={})
-      false
+      new(path)
     end
 
     #

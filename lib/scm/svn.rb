@@ -51,11 +51,19 @@ module SCM
     # @param [String] path
     #   The path to the repository.
     #
-    # @return [Boolean]
-    #   Specifies whether the repository was successfully created.
+    # @return [SVN]
+    #   The new SVN repository.
+    #
+    # @raise [RuntimeError]
     #
     def self.create(path,options={})
-      system('svnadmin','create',path)
+      path = File.expand_path(path)
+
+      unless system('svnadmin','create',path)
+        raise("could not create SVN repository #{path.dump}")
+      end
+
+      return new(path)
     end
 
     #
