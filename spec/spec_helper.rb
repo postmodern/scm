@@ -1,5 +1,13 @@
-gem 'rspec', '~> 2.4'
 require 'rspec'
-require 'scm/version'
+require 'helpers/scm'
 
-include Scm
+require 'scm/version'
+include SCM
+
+RSpec.configure do |rspec|
+  rspec.include Helpers::SCM
+
+  rspec.after(:suite) do
+    FileUtils.rm_rf(Helpers::SCM::ROOT_DIR)
+  end
+end
