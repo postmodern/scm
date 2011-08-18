@@ -170,7 +170,7 @@ module SCM
     #   Specifies whether to forcibly remove the files/directories.
     #
     # @note
-    #   {#remove!} does not respond to the `:recursive` option.
+    #   {#remove} does not respond to the `:recursive` option.
     #   SVN removes directories recursively by default.
     #
     def remove(paths,options={})
