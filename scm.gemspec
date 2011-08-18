@@ -3,6 +3,8 @@
 require 'yaml'
 
 Gem::Specification.new do |gemspec|
+  root = File.dirname(__FILE__)
+  lib_dir = File.join(root,'lib')
   files = if File.directory?('.git')
             `git ls-files`.split($/)
           elsif File.directory?('.hg')
@@ -23,7 +25,7 @@ Gem::Specification.new do |gemspec|
   }
 
   version = {
-    :file => 'lib/scm/version.rb',
+    :file => 'scm/version.rb',
     :constant => 'SCM::VERSION'
   }
 
@@ -40,8 +42,10 @@ Gem::Specification.new do |gemspec|
   gemspec.name = metadata.fetch('name',defaults[:name])
   gemspec.version = if metadata['version']
                       metadata['version']
-                    elsif File.file?(version[:file])
-                      require File.join('.',version[:file])
+                    else
+                      $LOAD_PATH << lib_dir unless $LOAD_PATH.include?(lib_dir)
+
+                      require version[:file]
                       eval(version[:constant])
                     end
 
