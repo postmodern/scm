@@ -311,6 +311,16 @@ module SCM
       @path.to_s
     end
 
+    #
+    # Inspects the Repository.
+    #
+    # @return [String]
+    #   The repository class name and path.
+    #
+    def inspect
+      "#<#{self.class}: #{@path}>"
+    end
+
     protected
 
     #
