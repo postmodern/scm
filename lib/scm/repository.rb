@@ -321,6 +321,23 @@ module SCM
       "#<#{self.class}: #{@path}>"
     end
 
+    #
+    # Lists the files of the repository.
+    #
+    # @yield [file]
+    #   The given block will be passed each file.
+    #
+    # @yieldparam [String] file
+    #   A path of a file within the repository.
+    #
+    # @return [Enumerator]
+    #   If no block is given, an Enumerator will be returned.
+    #
+    # @abstract
+    #
+    def files(&block)
+    end
+
     protected
 
     #

@@ -478,6 +478,34 @@ module SCM
       end
     end
 
+    #
+    # Lists the files of the Git repository.
+    #
+    # @param [String] pattern
+    #   Optional glob pattern to filter the files by.
+    #
+    # @yield [file]
+    #   The given block will be passed each file.
+    #
+    # @yieldparam [String] file
+    #   A path of a file tracked by Git.
+    #
+    # @return [Enumerator]
+    #   If no block is given, an Enumerator will be returned.
+    #
+    def files(pattern=nil,&block)
+      return enum_for(files,pattern) unless block
+
+      arguments = []
+
+      if pattern
+        arguments << '--' << pattern
+      end
+
+      popen('git','ls-files',*arguments,&block)
+      return nil
+    end
+
     protected
 
     #

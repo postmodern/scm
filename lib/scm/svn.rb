@@ -475,6 +475,27 @@ module SCM
       end
     end
 
+    #
+    # Lists the files of the SVN repository.
+    #
+    # @yield [file]
+    #   The given block will be passed each file.
+    #
+    # @yieldparam [String] file
+    #   A path of a file tracked by SVN.
+    #
+    # @return [Enumerator]
+    #   If no block is given, an Enumerator will be returned.
+    #
+    def files
+      return enum_for(:files) unless block_given?
+
+      popen('svn','ls','-R') do |file|
+        yield file if File.file?(File.join(@path,file))
+      end
+      return nil
+    end
+
     protected
 
     #

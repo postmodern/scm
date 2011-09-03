@@ -447,6 +447,25 @@ module SCM
       end
     end
 
+    #
+    # Lists the files of the Hg repository.
+    #
+    # @yield [file]
+    #   The given block will be passed each file.
+    #
+    # @yieldparam [String] file
+    #   A path of a file tracked by Hg.
+    #
+    # @return [Enumerator]
+    #   If no block is given, an Enumerator will be returned.
+    #
+    def files(&block)
+      return enum_for(:files) unless block
+
+      popen('hg','manifest',&block)
+      return nil
+    end
+
     protected
 
     #
