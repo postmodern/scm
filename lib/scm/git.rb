@@ -494,7 +494,7 @@ module SCM
     #   If no block is given, an Enumerator will be returned.
     #
     def files(pattern=nil,&block)
-      return enum_for(files,pattern) unless block
+      return enum_for(:files,pattern) unless block
 
       arguments = []
 
