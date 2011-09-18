@@ -14,5 +14,11 @@ describe Hg do
 
       repo.path.join('.hg').should be_directory
     end
+
+    it "should raise an exception when :base is specified" do
+      lambda {
+        Hg.create(mkdir('init_bare_hg_repo'), :bare => true)
+      }.should raise_error
+    end
   end
 end

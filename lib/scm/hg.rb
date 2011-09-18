@@ -35,6 +35,10 @@ module SCM
     #   Could not initialize the Hg repository.
     #
     def self.create(path,options={})
+      if options[:bare]
+        raise("Hg does not support creating bare repositories")
+      end
+
       unless path.start_with?('ssh://')
         FileUtils.mkdir_p(path)
       end
