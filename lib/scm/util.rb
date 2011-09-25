@@ -20,6 +20,9 @@ module SCM
     def run(program,*arguments)
       arguments = arguments.map { |arg| arg.to_s }
 
+      # filter out empty Strings
+      arguments.reject! { |arg| arg.empty? }
+
       system(program.to_s,*arguments)
     end
 
