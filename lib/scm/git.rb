@@ -249,11 +249,19 @@ module SCM
     # @param [String, Symbol] name
     #   The name of the branch to switch to.
     #
+    # @param [Hash] options
+    #   Additional options.
+    #
+    #   @option options [Boolean] :quiet 
+    #   Switch branch quietly.
+    #
     # @return [Boolean]
     #   Specifies whether the branch was successfully switched.
     #
-    def switch_branch(name)
-      git(:checkout,name)
+    def switch_branch(name, options)
+      arguments = ""
+      arguments << '-q' if options[:quiet]
+      git(:checkout, arguments, name)
     end
 
     #
