@@ -258,7 +258,7 @@ module SCM
     # @return [Boolean]
     #   Specifies whether the branch was successfully switched.
     #
-    def switch_branch(name, options)
+    def switch_branch(name, options={})
       arguments = ""
       arguments << '-q' if options[:quiet]
       git(:checkout, arguments, name)
