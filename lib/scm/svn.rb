@@ -1,6 +1,8 @@
 require 'scm/repository'
 require 'scm/commits/svn'
 
+require 'time'  # TODO: where does this belong ?
+
 module SCM
   #
   # Interacts with SubVersion (SVN) repositories.
@@ -443,9 +445,10 @@ module SCM
       revision = nil
       date     = nil
       author   = nil
-      summary  = ''
+      message  = ''
+      files    = []
 
-      io = popen('svn log',*arguments)
+      io = popen('svn log -v',*arguments)
 
       # eat the first LOG_SEPARATOR
       io.readline
@@ -458,20 +461,31 @@ module SCM
         revision = revision[1..-1].to_i
         date = Time.parse(date)
 
-        # eat the empty line separating the metadata from the summary
-        line.readline
+        # eat the next line separating the metadata from the summary
+        line = io.readline
 
-        loop do
+        if line == "Changed paths:\n"
           line = io.readline
-          break if line == LOG_SEPARATOR
-
-          summary << line
+          until line.strip.empty? do
+            files << line.strip.split(' ').last
+            line = io.readline
+          end
         end
 
-        yield Commits::SVN.new(revision,date,author,summary)
+        until io.eof? do
+          line = io.readline
+          break if line.start_with?('----')  # four is enough
+
+          message << line
+        end
+
+        message = message.strip
+        summary = message.lines.first.strip
+
+        yield Commits::SVN.new(revision,date,author,summary,message,files)
 
         revision = date = author = nil
-        summary = ''
+        message, files = '', []
       end
     end
 

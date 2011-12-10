@@ -20,6 +20,9 @@ module SCM
       # The full commit message of the commit
       attr_reader :message
 
+      # The files changed by the commit
+      attr_reader :files
+
       #
       # Creates a new commit object.
       #
@@ -47,7 +50,7 @@ module SCM
         @author = author
         @summary = summary
         @message = message
-        @files   = files
+        @files = files
       end
 
       #
