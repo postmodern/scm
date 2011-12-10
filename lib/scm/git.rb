@@ -449,7 +449,7 @@ module SCM
     def commits(options={})
       return enum_for(:commits,options) unless block_given?
 
-      arguments = ["--pretty=format:%H|%P|%T|%at|%an|%ae|%s"]
+      arguments = ["--name-only", "--pretty=format:%H~|~%P~|~%T~|~%at~|~%an~|~%ae~|~%s~|~%b~|~"]
 
       if options[:limit]
         arguments << "-#{options[:limit]}"
@@ -472,7 +472,10 @@ module SCM
       date   = nil
 
       popen('git log',*arguments) do |line|
-        commit, parent, tree, date, author, email, summary = line.split('|',7)
+        commit, parent, tree, date, author, email, summary, body, files = line.split('~|~',9)
+
+        message = summary + "\n\n" + body
+        files   = files.split("\n")
 
         yield Commits::Git.new(
           commit,
@@ -481,7 +484,9 @@ module SCM
           Time.at(date.to_i),
           author,
           email,
-          summary
+          summary,
+          message,
+          files
         )
       end
     end

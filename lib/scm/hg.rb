@@ -426,12 +426,17 @@ module SCM
       user     = nil
       date     = nil
       summary  = nil
+      message  = nil
+      files    = nil
+
+      # TODO: We need to change to `hg log -v` to get files, but then `description` will
+      # be on multiple lines, and the summary will be gone, breaking how this. How to fix?
 
       popen('hg log',*arguments) do |line|
         if line.empty?
-          yield Commits::Hg.new(revision,hash,branch,user,date,summary)
+          yield Commits::Hg.new(revision,hash,branch,user,date,summary,message,files)
 
-          revision = hash = branch = user = date = summary = nil
+          revision = hash = branch = user = date = summary = message = files = nil
         else
           key, value = line.split(' ',2)
 
@@ -446,6 +451,9 @@ module SCM
             date = Time.parse(value)
           when 'summary:'
             summary = value
+            message = value
+          when 'files:'
+            files = value.split(' ')
           end
         end
       end

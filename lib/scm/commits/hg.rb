@@ -34,8 +34,8 @@ module SCM
       # @param [String] summary
       #   The summary of the commit.
       #
-      def initialize(revision,hash,branch,user,date,summary)
-        super(revision,date,user,summary)
+      def initialize(revision,hash,branch,user,date,summary,message,files)
+        super(revision,date,user,summary,message,files)
 
         @hash = hash
         @branch = branch

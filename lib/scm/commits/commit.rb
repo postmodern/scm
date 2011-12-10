@@ -17,6 +17,9 @@ module SCM
       # The summary of the commit
       attr_reader :summary
 
+      # The full commit message of the commit
+      attr_reader :message
+
       #
       # Creates a new commit object.
       #
@@ -32,11 +35,19 @@ module SCM
       # @param [String] summary
       #   The summary of the commit.
       #
-      def initialize(commit,date,author,summary)
+      # @param [String] message
+      #   The full commit message of the commit.
+      #
+      # @param [String] files
+      #   The files changed in the commit.
+      #
+      def initialize(commit,date,author,summary,message,files=[])
         @commit = commit
         @date = date
         @author = author
         @summary = summary
+        @message = message
+        @files   = files
       end
 
       #

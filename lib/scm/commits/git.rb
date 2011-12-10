@@ -37,8 +37,8 @@ module SCM
       # @param [String] summary
       #   The summary of the commit.
       #
-      def initialize(commit,parent,tree,date,author,email,summary)
-        super(commit,date,author,summary)
+      def initialize(commit,parent,tree,date,author,email,summary,message,files)
+        super(commit,date,author,summary,message,files)
 
         @parent = parent
         @tree = tree
@@ -50,11 +50,11 @@ module SCM
       #
       # Coerces the Git commit into an Array.
       #
-      # @return [Array<commit, parent, tree, date, author, email, summary>]
+      # @return [Array<commit, parent, tree, date, author, email, summary, message, files>]
       #   The commit components.
       #
       def to_ary
-        [@commit, @parent, @tree, @date, @author, @email, @summary]
+        [@commit, @parent, @tree, @date, @author, @email, @summary, @message, @files]
       end
 
     end
