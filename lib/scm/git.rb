@@ -463,12 +463,13 @@ module SCM
         arguments += ['--', *options[:paths]]
       end
 
-      commit = nil
-      parent = nil
-      tree   = nil
-      parent = nil
-      author = nil
-      date   = nil
+      commit  = nil
+      parent  = nil
+      tree    = nil
+      date    = nil
+      author  = nil
+      email   = nil
+      summary = nil
 
       popen('git log',*arguments) do |line|
         commit, parent, tree, date, author, email, summary = line.split('|',7)
