@@ -466,7 +466,6 @@ module SCM
       commit = nil
       parent = nil
       tree   = nil
-      tree   = nil
       parent = nil
       author = nil
       date   = nil
