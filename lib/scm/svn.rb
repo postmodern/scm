@@ -452,38 +452,41 @@ module SCM
       io.readline
 
       until io.eof?
-        line = io.readline
-        line.chomp!
+        line = io.readline.chomp
 
         revision, author, date, changes = line.split(' | ',4)
         revision = revision[1..-1].to_i
-        date = Time.parse(date)
+        date     = Time.parse(date)
 
         # eat the next line separating the metadata from the summary
-        line = io.readline
+        line = io.readline.chomp
 
-        if line == "Changed paths:\n"
-          line = io.readline
-          until line.strip.empty? do
-            files << line.strip.split(' ').last
-            line = io.readline
+        if line == 'Changed paths:'
+          loop do
+            line = io.readline.chomp
+            break if line.empty?
+
+            files << line.split(' ',2).last
           end
         end
 
-        until io.eof? do
-          line = io.readline
-          break if line.start_with?('----')  # four is enough
+        description = []
 
-          message << line
+        until io.eof? do
+          line = io.readline.chomp
+          break if line == LOG_SEPARATOR
+
+          description << line
         end
 
-        message = message.strip
-        summary = message.lines.first.strip
+        summary = description[0]
+        message = description.join($/)
 
         yield Commits::SVN.new(revision,date,author,summary,message,files)
 
         revision = date = author = nil
-        message, files = '', []
+        message  = ''
+        files    = []
       end
     end
 
