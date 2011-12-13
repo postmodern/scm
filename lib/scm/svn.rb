@@ -428,7 +428,7 @@ module SCM
     def commits(options={})
       return enum_for(:commits,options) unless block_given?
 
-      arguments = []
+      arguments = ['-v']
 
       if options[:commit]
         arguments << '--revision' << options[:commit]
@@ -448,7 +448,7 @@ module SCM
       message  = ''
       files    = []
 
-      io = popen('svn log -v',*arguments)
+      io = popen('svn log',*arguments)
 
       # eat the first LOG_SEPARATOR
       io.readline
