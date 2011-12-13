@@ -402,7 +402,7 @@ module SCM
     def commits(options={})
       return enum_for(:commits,options) unless block_given?
 
-      arguments = []
+      arguments = ['-v']
 
       if options[:commit]
         arguments << '--rev' << options[:commit]
@@ -429,10 +429,11 @@ module SCM
       message  = nil
       files    = nil
 
-      # TODO: We need to change to `hg log -v` to get files, but then `description` will
-      # be on multiple lines, and the summary will be gone, breaking how this. How to fix?
+      io = popen('hg log',*arguments)
 
-      popen('hg log',*arguments) do |line|
+      until io.eof?
+        line = io.readline.chomp
+
         if line.empty?
           yield Commits::Hg.new(revision,hash,branch,user,date,summary,message,files)
 
@@ -449,9 +450,18 @@ module SCM
             user = value
           when 'date:'
             date = Time.parse(value)
-          when 'summary:'
-            summary = value
-            message = value
+          when 'description:'
+            description = []
+
+            loop do
+              line = io.readline.chomp
+              break if line.empty?
+
+              description << line
+            end
+
+            summary = description[0]
+            message = description.join($/)
           when 'files:'
             files = value.split(' ')
           end
