@@ -1,8 +1,6 @@
 require 'scm/repository'
 require 'scm/commits/svn'
 
-require 'time'  # TODO: where does this belong ?
-
 module SCM
   #
   # Interacts with SubVersion (SVN) repositories.

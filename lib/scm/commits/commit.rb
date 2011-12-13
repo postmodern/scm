@@ -1,3 +1,5 @@
+require 'time'
+
 module SCM
   module Commits
     #
