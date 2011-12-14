@@ -426,7 +426,7 @@ module SCM
     def commits(options={})
       return enum_for(:commits,options) unless block_given?
 
-      arguments = []
+      arguments = ['-v']
 
       if options[:commit]
         arguments << '--revision' << options[:commit]
@@ -443,7 +443,8 @@ module SCM
       revision = nil
       date     = nil
       author   = nil
-      summary  = ''
+      message  = ''
+      files    = []
 
       io = popen('svn log',*arguments)
 
@@ -451,27 +452,41 @@ module SCM
       io.readline
 
       until io.eof?
-        line = io.readline
-        line.chomp!
+        line = io.readline.chomp
 
         revision, author, date, changes = line.split(' | ',4)
         revision = revision[1..-1].to_i
-        date = Time.parse(date)
+        date     = Time.parse(date)
 
-        # eat the empty line separating the metadata from the summary
-        line.readline
+        # eat the next line separating the metadata from the summary
+        line = io.readline.chomp
 
-        loop do
-          line = io.readline
-          break if line == LOG_SEPARATOR
+        if line == 'Changed paths:'
+          loop do
+            line = io.readline.chomp
+            break if line.empty?
 
-          summary << line
+            files << line.split(' ',2).last
+          end
         end
 
-        yield Commits::SVN.new(revision,date,author,summary)
+        description = []
+
+        until io.eof? do
+          line = io.readline.chomp
+          break if line == LOG_SEPARATOR
+
+          description << line
+        end
+
+        summary = description[0]
+        message = description.join($/)
+
+        yield Commits::SVN.new(revision,date,author,summary,message,files)
 
         revision = date = author = nil
-        summary = ''
+        message  = ''
+        files    = []
       end
     end
 

@@ -402,7 +402,7 @@ module SCM
     def commits(options={})
       return enum_for(:commits,options) unless block_given?
 
-      arguments = []
+      arguments = ['-v']
 
       if options[:commit]
         arguments << '--rev' << options[:commit]
@@ -426,12 +426,18 @@ module SCM
       user     = nil
       date     = nil
       summary  = nil
+      message  = nil
+      files    = nil
 
-      popen('hg log',*arguments) do |line|
+      io = popen('hg log',*arguments)
+
+      until io.eof?
+        line = io.readline.chomp
+
         if line.empty?
-          yield Commits::Hg.new(revision,hash,branch,user,date,summary)
+          yield Commits::Hg.new(revision,hash,branch,user,date,summary,message,files)
 
-          revision = hash = branch = user = date = summary = nil
+          revision = hash = branch = user = date = summary = message = files = nil
         else
           key, value = line.split(' ',2)
 
@@ -444,8 +450,20 @@ module SCM
             user = value
           when 'date:'
             date = Time.parse(value)
-          when 'summary:'
-            summary = value
+          when 'description:'
+            description = []
+
+            loop do
+              line = io.readline.chomp
+              break if line.empty?
+
+              description << line
+            end
+
+            summary = description[0]
+            message = description.join($/)
+          when 'files:'
+            files = value.split(' ')
           end
         end
       end
