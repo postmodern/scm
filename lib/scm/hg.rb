@@ -453,7 +453,7 @@ module SCM
           when 'description:'
             description = []
 
-            loop do
+            until io.eof?
               line = io.readline.chomp
               break if line.empty?
 
