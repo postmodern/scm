@@ -477,8 +477,8 @@ module SCM
       popen('git log',*arguments) do |line|
         commit, parent, tree, date, author, email, summary, body, files = line.split('~|~',9)
 
-        message = summary + "\n\n" + body
-        files   = files.split("\n")
+        message = [summary, '', body].join($/)
+        files   = files.split($/)
 
         yield Commits::Git.new(
           commit,
