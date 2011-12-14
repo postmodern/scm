@@ -474,11 +474,22 @@ module SCM
       email   = nil
       summary = nil
 
-      popen('git log',*arguments) do |line|
+      io = popen('git log',*arguments)
+
+      until io.eof?
+        line = io.readline.chomp
+
         commit, parent, tree, date, author, email, summary, body, files = line.split('~|~',9)
 
         message = [summary, '', body].join($/)
-        files   = files.split($/)
+        files   = []
+
+        until io.eof?
+          line = io.readline.chomp
+          break if line.empty?
+
+          files << line
+        end
 
         yield Commits::Git.new(
           commit,
