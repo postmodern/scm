@@ -56,6 +56,16 @@ module SCM
       end
 
       #
+      # Inspects the commit.
+      #
+      # @return [String]
+      #   The inspected commit.
+      #
+      def inspect
+        "#<#{self.class}: #{@commit}>"
+      end
+
+      #
       # Converts the commit to a String.
       #
       # @return [String]
