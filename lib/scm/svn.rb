@@ -462,25 +462,12 @@ module SCM
         line = io.readline.chomp
 
         if line == 'Changed paths:'
-          until io.eof?
-            line = io.readline.chomp
-            break if line.empty?
-
-            files << line.split(' ',2).last
-          end
+          files = readlines_until(io)
         end
 
-        description = []
-
-        until io.eof? do
-          line = io.readline.chomp
-          break if line == LOG_SEPARATOR
-
-          description << line
-        end
-
-        summary = description[0]
-        message = description.join($/)
+        description = readlines_until(io,LOG_SEPARATOR)
+        summary     = description[0]
+        message     = description.join($/)
 
         yield Commits::SVN.new(revision,date,author,summary,message,files)
 

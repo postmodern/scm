@@ -482,14 +482,7 @@ module SCM
         commit, parent, tree, date, author, email, summary, body, files = line.split('~|~',9)
 
         message = [summary, '', body].join($/)
-        files   = []
-
-        until io.eof?
-          line = io.readline.chomp
-          break if line.empty?
-
-          files << line
-        end
+        files   = readlines_until(io)
 
         yield Commits::Git.new(
           commit,

@@ -64,5 +64,32 @@ module SCM
 
       return io
     end
+
+    #
+    # Read lines until a separator line is encountered.
+    #
+    # @param [IO] io
+    #   The IO stream to read from.
+    #
+    # @param [String] separator
+    #   The separator line to stop at.
+    #
+    # @return [Array<String>]
+    #   The read lines.
+    #
+    def readlines_until(io,separator='')
+      lines = []
+
+      until io.eof?
+        line = io.readline
+        line.chomp!
+
+        break if line == separator
+
+        lines << line
+      end
+
+      return lines
+    end
   end
 end

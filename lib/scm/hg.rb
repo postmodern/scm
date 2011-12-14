@@ -451,17 +451,9 @@ module SCM
           when 'date:'
             date = Time.parse(value)
           when 'description:'
-            description = []
-
-            until io.eof?
-              line = io.readline.chomp
-              break if line.empty?
-
-              description << line
-            end
-
-            summary = description[0]
-            message = description.join($/)
+            description = readlines_until(io)
+            summary     = description[0]
+            message     = description.join($/)
           when 'files:'
             files = value.split(' ')
           end
