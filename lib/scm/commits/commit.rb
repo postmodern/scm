@@ -47,12 +47,12 @@ module SCM
       #   The files changed in the commit.
       #
       def initialize(commit,date,author,summary,message,files=[])
-        @commit = commit
-        @date = date
-        @author = author
+        @commit  = commit
+        @date    = date
+        @author  = author
         @summary = summary
         @message = message
-        @files = files
+        @files   = files
       end
 
       #

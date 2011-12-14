@@ -41,8 +41,8 @@ module SCM
         super(commit,date,author,summary,message,files)
 
         @parent = parent
-        @tree = tree
-        @email = email
+        @tree   = tree
+        @email  = email
       end
 
       alias sha1 commit
