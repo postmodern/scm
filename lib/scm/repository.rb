@@ -10,14 +10,21 @@ module SCM
     # The path of the repository
     attr_reader :path
 
+    # SCM specification options for the repository
+    attr_reader :options
+
     #
     # Creates a new repository.
     #
     # @param [String] path
     #   The path to the repository.
     #
-    def initialize(path)
-      @path = Pathname.new(File.expand_path(path))
+    # @param [Hash] options
+    #   SCM specific options for the repository.
+    #
+    def initialize(path,options={})
+      @path    = Pathname.new(File.expand_path(path))
+      @options = options
     end
 
     #
@@ -366,10 +373,54 @@ module SCM
     protected
 
     #
+    # Formats SCM specific options.
+    #
+    # @param [Hash] options
+    #   The SCM specific options to format.
+    #
+    # @return [Array<String>]
+    #   SCM specific arguments.
+    #
+    # @abstract
+    #
+    def self.options(options)
+      []
+    end
+
+    #
+    # Builds a command for the SCM executable.
+    #
+    # @param [String] name
+    #   The SCM sub-command to invoke.
+    #
+    # @param [Array<String>] arguments
+    #   Additional arguments for the command.
+    #
+    # @return [(String, Array<String>)]
+    #   The SCM program and additional arguments.
+    #
+    def self.command(name,arguments,options=nil)
+      program = (path || self.name.downcase)
+
+      if options
+        arguments += self.options(options)
+      end
+
+      return program, arguments
+    end
+
+    #
+    # @see command
+    #
+    def command(name,arguments)
+      self.class.command(name,arguments,@options)
+    end
+
+    #
     # Runs a command within the repository.
     #
-    # @param [Symbol] command
-    #   The command to run.
+    # @param [Symbol] sub_command
+    #   The SCM sub-command to run.
     #
     # @param [Array] arguments
     #   Additional arguments to pass to the command.
@@ -377,15 +428,15 @@ module SCM
     # @return [Boolean]
     #   Specifies whether the SVN command exited successfully.
     #
-    def run(command,*arguments)
-      Dir.chdir(@path) { super(command,*arguments) }
+    def run(sub_command,*arguments)
+      Dir.chdir(@path) { super(*command(sub_command,arguments)) }
     end
 
     #
     # Runs a command as a separate process.
     #
-    # @param [Symbol] command
-    #   The command to run.
+    # @param [Symbol] sub_command
+    #   The sub-command to run.
     #
     # @param [Array] arguments
     #   Additional arguments to pass to the command.
@@ -399,8 +450,8 @@ module SCM
     # @return [IO]
     #   The stdout of the command being ran.
     #
-    def popen(command,*arguments)
-      Dir.chdir(@path) { super(command,*arguments) }
+    def popen(sub_command,*arguments)
+      Dir.chdir(@path) { super(*command(sub_command,arguments)) }
     end
 
   end
