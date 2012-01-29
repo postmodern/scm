@@ -67,7 +67,7 @@ module SCM
     # @abstract
     #
     def self.create(path,options={})
-      new(path)
+      new(path,options)
     end
 
     #
