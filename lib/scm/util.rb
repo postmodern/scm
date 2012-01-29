@@ -18,10 +18,10 @@ module SCM
     #   Specifies whether the program exited successfully.
     #
     def run(program,*arguments)
-      arguments = arguments.map { |arg| arg.to_s }
+      arguments = arguments.map(&:to_s)
 
       # filter out empty Strings
-      arguments.reject! { |arg| arg.empty? }
+      arguments.reject!(&:empty?)
 
       system(program.to_s,*arguments)
     end
