@@ -21,6 +21,31 @@ module SCM
     end
 
     #
+    # The path to the SCM binary.
+    #
+    # @return [String, nil]
+    #   The binary path.
+    #
+    def self.path
+      @path ||= nil
+    end
+
+    #
+    # Sets the path to the SCM binary.
+    #
+    # @param [String, nil] new_path
+    #   The new path to the SCM binary.
+    #
+    # @return [String, nil]
+    #   The new SCM binary path.
+    #
+    def self.path=(new_path)
+      @path = if new_path
+                 File.expand_path(new_path)
+               end
+    end
+
+    #
     # Creates a new repository.
     #
     # @param [String] path
