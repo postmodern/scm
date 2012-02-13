@@ -54,13 +54,16 @@ module SCM
   # @param [URI, String] uri
   #   The URI to the repository.
   #
+  # @param [Hash] options
+  #   Additional SCM specific clone options.
+  #
   # @return [Repository]
   #   The SCM repository.
   #
   # @raise [RuntimeError]
   #   The exact SCM could not be determined.
   #
-  def SCM.clone(uri, opts={})
+  def SCM.clone(uri,options={})
     uri = URI(uri) unless uri.kind_of?(URI)
 
     scm = (SCHEMES[uri.scheme] || EXTENSIONS[File.extname(uri.path)])
@@ -69,6 +72,6 @@ module SCM
       raise("could not determine the SCM of #{uri}")
     end
 
-    return scm.clone(uri,opts)
+    return scm.clone(uri,options)
   end
 end
