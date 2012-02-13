@@ -2,6 +2,8 @@ require 'scm/git'
 require 'scm/hg'
 require 'scm/svn'
 
+require 'uri'
+
 module SCM
   # SCM control directories and the SCM classes
   DIRS = {
@@ -10,13 +12,16 @@ module SCM
     '.svn' => SVN
   }
 
-  URIS = {
-    /^git:/ => Git,
-    /^hg:/  => Hg,
-    /^svn:/ => SVN,
-    /.git$/ => Git,
-    /.hg$/  => Hg,
-    /.svn$/ => SVN
+  SCHEMES = {
+    'git' => Git,
+    'hg'  => Hg,
+    'svn' => SVN
+  }
+
+  EXTENSIONS = {
+    '.git' => Git,
+    '.hg'  => Hg,
+    '.svn' => SVN
   }
 
   #
@@ -46,7 +51,7 @@ module SCM
   #
   # Determines the SCM used for a repository URI and clones it.
   #
-  # @param [String] uri
+  # @param [URI, String] uri
   #   The URI to the repository.
   #
   # @return [Repository]
@@ -56,10 +61,14 @@ module SCM
   #   The exact SCM could not be determined.
   #
   def SCM.clone(uri, opts={})
-    URIS.each do |regex,repo|
-      return repo.clone(uri, opts) if regex.match(uri)
+    uri = URI(uri) unless uri.kind_of?(URI)
+
+    scm = (SCHEMES[uri.scheme] || EXTENSIONS[File.extname(uri.path)])
+
+    unless scm
+      raise("could not determine the SCM of #{uri}")
     end
 
-    raise("could not determine the SCM of #{uri.dump}")
+    return scm.clone(uri,opts)
   end
 end
