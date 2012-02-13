@@ -60,7 +60,7 @@ module SCM
   # @return [Repository]
   #   The SCM repository.
   #
-  # @raise [RuntimeError]
+  # @raise [ArgumentError]
   #   The exact SCM could not be determined.
   #
   def SCM.clone(uri,options={})
@@ -69,7 +69,7 @@ module SCM
     scm = (SCHEMES[uri.scheme] || EXTENSIONS[File.extname(uri.path)])
 
     unless scm
-      raise("could not determine the SCM of #{uri}")
+      raise(ArgumentError,"could not determine the SCM of #{uri}")
     end
 
     return scm.clone(uri,options)
