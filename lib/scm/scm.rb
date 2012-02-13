@@ -10,6 +10,15 @@ module SCM
     '.svn' => SVN
   }
 
+  URIS = {
+    /^git:/ => Git,
+    /^hg:/  => Hg,
+    /^svn:/ => SVN,
+    /.git$/ => Git,
+    /.hg$/  => Hg,
+    /.svn$/ => SVN
+  }
+
   #
   # Determines the SCM used for a repository.
   #
@@ -32,5 +41,25 @@ module SCM
     end
 
     raise("could not determine the SCM of #{path.dump}")
+  end
+
+  #
+  # Determines the SCM used for a repository URI and clones it.
+  #
+  # @param [String] uri
+  #   The URI to the repository.
+  #
+  # @return [Repository]
+  #   The SCM repository.
+  #
+  # @raise [RuntimeError]
+  #   The exact SCM could not be determined.
+  #
+  def SCM.clone(uri, opts={})
+    URIS.each do |regex,repo|
+      return repo.clone(uri, opts) if regex.match(uri)
+    end
+
+    raise("could not determine the SCM of #{uri.dump}")
   end
 end
