@@ -33,7 +33,7 @@ module SCM
   # @return [Repository]
   #   The SCM repository.
   #
-  # @raise [RuntimeError]
+  # @raise [ArgumentError]
   #   The exact SCM could not be determined.
   #
   def SCM.new(path)
@@ -45,7 +45,7 @@ module SCM
       return repo.new(path) if File.directory?(dir)
     end
 
-    raise("could not determine the SCM of #{path.dump}")
+    raise(ArgumentError,"could not determine the SCM of #{path.dump}")
   end
 
   #
