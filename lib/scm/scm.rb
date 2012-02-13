@@ -65,7 +65,6 @@ module SCM
   #
   def SCM.clone(uri,options={})
     uri = URI(uri) unless uri.kind_of?(URI)
-
     scm = (SCHEMES[uri.scheme] || EXTENSIONS[File.extname(uri.path)])
 
     unless scm
