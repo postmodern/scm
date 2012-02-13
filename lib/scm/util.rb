@@ -23,6 +23,8 @@ module SCM
       # filter out empty Strings
       arguments.reject!(&:empty?)
 
+      $stderr.puts(program,*arguments) if $DEBUG
+
       system(program.to_s,*arguments)
     end
 
@@ -52,6 +54,8 @@ module SCM
           command << ' ' << Shellwords.shellescape(arg.to_s)
         end
       end
+
+      $stderr.puts(command) if $DEBUG
 
       io = IO.popen(command)
 
