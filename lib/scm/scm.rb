@@ -8,7 +8,7 @@ module SCM
   # SCM control directories and the SCM classes
   DIRS = {
     '.git' => Git,
-    '.hg' => Hg,
+    '.hg'  => Hg,
     '.svn' => SVN
   }
 
