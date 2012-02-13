@@ -12,12 +12,14 @@ module SCM
     '.svn' => SVN
   }
 
+  # Common URI schemes used to denote the SCM
   SCHEMES = {
     'git' => Git,
     'hg'  => Hg,
     'svn' => SVN
   }
 
+  # Common file extensions used to denote the SCM of a URI
   EXTENSIONS = {
     '.git' => Git,
     '.hg'  => Hg,
