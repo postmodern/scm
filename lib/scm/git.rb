@@ -40,14 +40,11 @@ module SCM
     def self.create(path,options={})
       path = File.expand_path(path)
 
-      arguments = []
-
-      arguments << '--bare' if options[:bare]
-      arguments << path
-
       FileUtils.mkdir_p(path)
 
-      unless system('git','init',*arguments)
+      arguments = [path]
+
+      unless run('init',arguments,options)
         raise("unable to initialize Git repository #{path.dump}")
       end
 
@@ -87,25 +84,26 @@ module SCM
     def self.clone(uri,options={})
       arguments = []
 
-      arguments << '--bare'   if options[:bare]
-      arguments << '--mirror' if options[:mirror]
+      arguments << '--mirror' if options.delete(:mirror)
 
-      if options[:depth]
-        arguments << '--depth' << options[:depth]
+      if (depth = options.delete(:depth))
+        arguments << '--depth' << depth
       end
 
-      if options[:branch]
-        arguments << '--branch' << options[:branch]
+      if (branch = options.delete(:branch))
+        arguments << '--branch' << branch
       end
 
-      arguments << '--recurse-submodules' if options[:submodules]
-
+      arguments << '--recurse-submodules' if options.delete(:submodules)
       arguments << '--' unless arguments.empty?
 
       arguments << uri
-      arguments << options[:dest] if options[:dest]
 
-      system('git','clone',*arguments)
+      if (dest = options.delete(:dest))
+        arguments << dest
+      end
+
+      return run('clone',arguments,options)
     end
 
     #
@@ -118,9 +116,9 @@ module SCM
     #   The file paths and their statuses.
     #
     def status(*paths)
-      statuses = {}
+      statuses  = {}
 
-      popen('git status --porcelain',*paths) do |line|
+      popen('status','--porcelain',*paths) do |line|
         status = line[0,2]
         path = line[3..-1]
 
@@ -137,7 +135,7 @@ module SCM
     #   The paths to add to the repository.
     #
     def add(*paths)
-      git(:add,*paths)
+      run('add',*paths)
     end
 
     #
@@ -158,7 +156,7 @@ module SCM
       arguments << '-f' if force
       arguments << source << dest
 
-      git(:mv,*arguments)
+      return run('mv',*arguments)
     end
 
     #
@@ -183,7 +181,7 @@ module SCM
       arguments << '-r' if options[:recursive]
       arguments += ['--', *paths]
 
-      git(:rm,*arguments)
+      return run('rm',*arguments)
     end
 
     #
@@ -212,7 +210,7 @@ module SCM
         arguments += ['--', *options[:paths]]
       end
 
-      git(:commit,*arguments)
+      return run('commit',*arguments)
     end
 
     #
@@ -224,7 +222,7 @@ module SCM
     def branches
       branches = []
 
-      popen('git branch') do |line|
+      popen('branch') do |line|
         branches << line[2..-1]
       end
 
@@ -238,7 +236,7 @@ module SCM
     #   The name of the current branch.
     #
     def current_branch
-      popen('git branch') do |line|
+      popen('branch') do |line|
         return line[2..-1] if line[0,1] == '*'
       end
     end
@@ -258,10 +256,12 @@ module SCM
     # @return [Boolean]
     #   Specifies whether the branch was successfully switched.
     #
-    def switch_branch(name, options={})
-      arguments = ""
+    def switch_branch(name,options={})
+      arguments = []
       arguments << '-q' if options[:quiet]
-      git(:checkout, arguments, name)
+      arguments << name
+
+      return run('checkout',*arguments)
     end
 
     #
@@ -274,7 +274,7 @@ module SCM
     #   Specifies whether the branch was successfully deleted.
     #
     def delete_branch(name)
-      git(:branch,'-d',name)
+      run('branch','-d',name)
     end
 
     #
@@ -284,13 +284,7 @@ module SCM
     #   The tag names.
     #
     def tags
-      tags = []
-
-      popen('git tag') do |line|
-        tags << line[2..-1]
-      end
-
-      return tags
+      enum_for(:popen,'tag').to_a
     end
 
     #
@@ -309,7 +303,7 @@ module SCM
       arguments = []
       arguments << commit if commit
 
-      git(:tag,name,*arguments)
+      return run('tag',name,*arguments)
     end
 
     #
@@ -322,7 +316,7 @@ module SCM
     #   Specifies whether the tag was successfully deleted.
     #
     def delete_tag(name)
-      git(:tag,'-d',name)
+      run('tag','-d',name)
     end
 
     #
@@ -343,7 +337,7 @@ module SCM
         arguments += ['--', *options[:paths]]
       end
 
-      git(:log,*arguments)
+      return run('log',*arguments)
     end
 
     #
@@ -392,7 +386,7 @@ module SCM
         arguments << options[:branch]
       end
 
-      git(:push,*arguments)
+      return run('push',*arguments)
     end
 
     #
@@ -416,7 +410,7 @@ module SCM
       arguments << '-f' if options[:force]
       arguments << options[:repository] if options[:repository]
 
-      git(:pull,*arguments)
+      return run('pull',*arguments)
     end
 
     #
@@ -474,7 +468,7 @@ module SCM
       email   = nil
       summary = nil
 
-      io = popen('git log',*arguments)
+      io = popen('log',*arguments)
 
       until io.eof?
         line = io.readline.chomp
@@ -522,26 +516,71 @@ module SCM
         arguments << '--' << pattern
       end
 
-      popen('git','ls-files',*arguments,&block)
+      popen('ls-files',*arguments,&block)
       return nil
     end
 
     protected
 
     #
-    # Runs a Git command.
+    # Builds arguments for common `git` options.
     #
-    # @param [Symbol] command
-    #   The Git command to run.
+    # @param [Hash] options
+    #   Common options for `git`.
     #
-    # @param [Array] arguments
-    #   Additional arguments to pass to the Git command.
+    # @option options [String] :exec_path
+    #   Path to wherever your core git programs are installed.
     #
-    # @return [Boolean]
-    #   Specifies whether the Git command exited successfully.
+    # @option options [Boolean] :paginate
+    #   Pipe all output into the pager.
     #
-    def git(command,*arguments)
-      run(:git,command,*arguments)
+    # @option options [Boolean] :no_pager
+    #   Do not pipe git output into a paper.
+    #
+    # @option options [Boolean] :no_replace_objects
+    #   Do not use replacement refs to replace git objects.
+    #
+    # @option options [Boolean] :bare
+    #   Treats the repository as a bare repository.
+    #
+    # @option options [String] :git_dir
+    #   Set the path to the repository.
+    #
+    # @option options [String] :work_tree
+    #   Sets the path to the working tree.
+    #
+    # @option options [Hash{String => String}] :config
+    #   Additional configuration parameters for `git`.
+    #
+    # @return [Array<String>]
+    #   Arguments for the `git` command.
+    #
+    def self.options(options)
+      arguments = []
+
+      if options[:exec_path]
+        arguments << "--exec-path=#{options[:exec_path]}"
+      end
+
+      if options[:paginate]
+        arguments << '--paginate'
+      elsif options[:no_pager]
+        arguments << '--no-pager'
+      end
+
+      arguments << '--no-replace-objects' if options[:no_replace_objects]
+      arguments << '--bare'               if options[:bare]
+
+      arguments << "--git-dir=#{options[:git_dir]}"     if options[:git_dir]
+      arguments << "--work-tree=#{options[:work_tree]}" if options[:work_tree]
+
+      if options[:config]
+        options[:config].each do |name,value|
+          arguments << "-c" << "#{name}=#{value}"
+        end
+      end
+
+      return arguments
     end
 
   end

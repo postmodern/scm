@@ -5,8 +5,6 @@ require 'pathname'
 module SCM
   class Repository
 
-    include Util
-
     # The path of the repository
     attr_reader :path
 
@@ -372,6 +370,8 @@ module SCM
 
     protected
 
+    extend Util
+
     #
     # Formats SCM specific options.
     #
@@ -390,30 +390,59 @@ module SCM
     #
     # Builds a command for the SCM executable.
     #
-    # @param [String] name
+    # @param [String] sub_command
     #   The SCM sub-command to invoke.
     #
     # @param [Array<String>] arguments
     #   Additional arguments for the command.
     #
-    # @return [(String, Array<String>)]
-    #   The SCM program and additional arguments.
+    # @return [Array<String>]
+    #   The arguments for the SCM command.
     #
-    def self.command(name,arguments,options=nil)
-      program = (path || self.name.downcase)
+    def self.command(sub_command,arguments,options=nil)
+      program = (path || self.name.split('::').last.downcase)
 
       if options
-        arguments += self.options(options)
+        arguments = self.options(options) + arguments
       end
 
-      return program, arguments
+      return [program, sub_command] + arguments
     end
 
     #
-    # @see command
+    # Runs a sub-command of the SCM.
     #
-    def command(name,arguments)
-      self.class.command(name,arguments,@options)
+    # @param [String] sub_command
+    #   The name of the SCM sub_command to run.
+    #
+    # @param [Array<String>] arguments
+    #   Additional arguments for the sub-command.
+    #
+    # @param [Hash] options
+    #   Additional SCM options.
+    #
+    # @see Util#run
+    #
+    def self.run(sub_command,arguments,options=nil)
+      super(*command(sub_command,arguments,options))
+    end
+
+    #
+    # Runs a sub-command of the SCM.
+    #
+    # @param [String] sub_command
+    #   The name of the SCM sub_command to run.
+    #
+    # @param [Array<String>] arguments
+    #   Additional arguments for the sub-command.
+    #
+    # @param [Hash] options
+    #   Additional SCM options.
+    #
+    # @see Util#popen
+    #
+    def self.popen(sub_command,arguments,options=nil,&block)
+      super(*command(sub_command,arguments,options),&block)
     end
 
     #
@@ -429,7 +458,7 @@ module SCM
     #   Specifies whether the SVN command exited successfully.
     #
     def run(sub_command,*arguments)
-      Dir.chdir(@path) { super(*command(sub_command,arguments)) }
+      Dir.chdir(@path) { self.class.run(sub_command,arguments,@options) }
     end
 
     #
@@ -450,8 +479,10 @@ module SCM
     # @return [IO]
     #   The stdout of the command being ran.
     #
-    def popen(sub_command,*arguments)
-      Dir.chdir(@path) { super(*command(sub_command,arguments)) }
+    def popen(sub_command,*arguments,&block)
+      Dir.chdir(@path) do
+        self.class.popen(sub_command,arguments,@options,&block)
+      end
     end
 
   end

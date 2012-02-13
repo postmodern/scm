@@ -43,7 +43,9 @@ module SCM
         FileUtils.mkdir_p(path)
       end
 
-      unless (result = system('hg','init',path))
+      arguments = [path]
+
+      unless (result = run('init',arguments,options))
         raise("unable to initialize Hg repository #{path.dump}")
       end
 
@@ -78,18 +80,21 @@ module SCM
     def self.clone(uri,options={})
       arguments = []
 
-      if options[:commits]
-        arguments << '--rev' << options[:commits]
+      if (commits = options.delete(:commits))
+        arguments << '--rev' << commits
       end
 
-      if options[:branch]
-        arguments << '--branch' << options[:branch]
+      if (branch = options.delete(:branch))
+        arguments << '--branch' << branch
       end
 
       arguments << uri
-      arguments << options[:dest] if options[:dest]
 
-      system('hg','clone',*arguments)
+      if (dest = options.delete(:dest))
+        arguments << dest
+      end
+
+      return run('clone',arguments,options)
     end
 
     #
@@ -104,7 +109,7 @@ module SCM
     def status(*paths)
       statuses = {}
 
-      popen('hg status',*paths) do |line|
+      popen('status',*paths) do |line|
         status, path = line.split(' ',2)
 
         statuses[path] = STATUSES[status]
@@ -120,7 +125,7 @@ module SCM
     #   The paths to add to the repository.
     #
     def add(*paths)
-      hg(:add,*paths)
+      run('add',*paths)
     end
 
     #
@@ -141,7 +146,7 @@ module SCM
       arguments << '--force' if force
       arguments << source << dest
 
-      svn(:mv,*arguments)
+      return run('mv',*arguments)
     end
 
     #
@@ -166,7 +171,7 @@ module SCM
       arguments << '--force' if options[:force]
       arguments += ['--', *paths]
 
-      hg(:rm,*arguments)
+      return run('rm',*arguments)
     end
 
     #
@@ -195,7 +200,7 @@ module SCM
         arguments += [*options[:paths]]
       end
 
-      hg(:commit,*arguments)
+      return run('commit',*arguments)
     end
 
     #
@@ -207,7 +212,7 @@ module SCM
     def branches
       branches = []
 
-      popen('hg branches') do |line|
+      popen('branches') do |line|
         branches << line[2..-1]
       end
 
@@ -221,7 +226,7 @@ module SCM
     #   The name of the current branch.
     #
     def branch
-      popen('hg branch').chomp
+      popen('branch').chomp
     end
 
     #
@@ -234,7 +239,7 @@ module SCM
     #   Specifies whether the branch was successfully switched.
     #
     def switch_branch(name)
-      hg(:update,name)
+      run('update',name)
     end
 
     #
@@ -247,7 +252,7 @@ module SCM
     #   Specifies whether the branch was successfully deleted.
     #
     def delete_branch(name)
-      hg(:commit,'--close-branch','-m',"Closing #{name}")
+      run('commit','--close-branch','-m',"Closing #{name}")
     end
 
     #
@@ -259,7 +264,7 @@ module SCM
     def tags
       tags = []
 
-      popen('hg tags') do |line|
+      popen('tags') do |line|
         tags << line[2..-1]
       end
 
@@ -285,7 +290,7 @@ module SCM
         arguments << '-r' << commit
       end
 
-      hg(:tag,name,*arguments)
+      return run('tag',name,*arguments)
     end
 
     #
@@ -298,7 +303,7 @@ module SCM
     #   Specifies whether the tag was successfully deleted.
     #
     def delete_tag(name)
-      hg(:tag,'--remove',name)
+      run('tag','--remove',name)
     end
 
     #
@@ -321,7 +326,7 @@ module SCM
         arguments += [*options[:paths]]
       end
 
-      hg(:log,*arguments)
+      return run('log',*arguments)
     end
 
     #
@@ -345,7 +350,7 @@ module SCM
       arguments << '-f' if options[:force]
       arguments << options[:repository] if options[:repository]
 
-      hg(:push,*arguments)
+      return run('push',*arguments)
     end
 
     #
@@ -369,7 +374,7 @@ module SCM
       arguments << '-f' if options[:force]
       arguments << options[:repository] if options[:repository]
 
-      hg(:pull,*arguments)
+      return run('pull',*arguments)
     end
 
     #
@@ -429,7 +434,7 @@ module SCM
       message  = nil
       files    = nil
 
-      io = popen('hg log',*arguments)
+      io = popen('log',*arguments)
 
       until io.eof?
         line = io.readline.chomp
@@ -476,26 +481,8 @@ module SCM
     def files(&block)
       return enum_for(:files) unless block
 
-      popen('hg','manifest',&block)
+      popen('manifest',&block)
       return nil
-    end
-
-    protected
-
-    #
-    # Runs a Hg command.
-    #
-    # @param [Symbol] command
-    #   The Hg command to run.
-    #
-    # @param [Array] arguments
-    #   Additional arguments to pass to the Hg command.
-    #
-    # @return [Boolean]
-    #   Specifies whether the Hg command exited successfully.
-    #
-    def hg(command,*arguments)
-      run(:hg,command,*arguments)
     end
 
   end

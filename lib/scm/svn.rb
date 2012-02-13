@@ -29,10 +29,11 @@ module SCM
     # @param [String] path
     #   The path to the SVN repository.
     #
-    def initialize(path)
-      path = File.expand_path(path)
-
-      super(path)
+    # @param [Hash] options
+    #   SVN specific options.
+    #
+    def initialize(path,options={})
+      super(File.expand_path(path),options)
 
       @root = if File.basename(@path) == 'trunk'
                 File.dirname(@path)
@@ -63,7 +64,7 @@ module SCM
         raise("could not create SVN repository #{path.dump}")
       end
 
-      return new(path)
+      return new(path,options)
     end
 
     #
@@ -94,7 +95,7 @@ module SCM
       arguments << uri
       arguments << options[:dest] if options[:dest]
 
-      system('svn','checkout',*arguments)
+      return run('checkout',arguments,options)
     end
 
     #
@@ -116,7 +117,7 @@ module SCM
     def status(*paths)
       statuses = {}
 
-      popen('svn status',*paths) do |line|
+      popen('status',*paths) do |line|
         status = line[0,1]
         path = line[8..-1]
 
@@ -133,7 +134,7 @@ module SCM
     #   The paths to add to the repository.
     #
     def add(*paths)
-      svn(:add,*paths)
+      run('add',*paths)
     end
 
     #
@@ -154,7 +155,7 @@ module SCM
       arguments << '--force' if force
       arguments << source << dest
 
-      svn(:mv,*arguments)
+      return run('mv',*arguments)
     end
 
     #
@@ -179,7 +180,7 @@ module SCM
       arguments << '--force' if options[:force]
       arguments += ['--', *paths]
 
-      svn(:rm,*arguments)
+      return run('rm',*arguments)
     end
 
     #
@@ -208,7 +209,7 @@ module SCM
         arguments += [*options[:paths]]
       end
 
-      svn(:commit,*arguments)
+      return run('commit',*arguments)
     end
 
     #
@@ -280,9 +281,11 @@ module SCM
     def delete_branch(name)
       branch_dir = File.join(@branchs,name)
 
-      return false unless File.directory?(branch_dir)
-
-      svn(:rm,File.join('..','branchs',name))
+      if File.directory?(branch_dir)
+        return run('rm',File.join('..','branchs',name))
+      else
+        return false
+      end
     end
 
     #
@@ -321,11 +324,13 @@ module SCM
         raise(ArgumentError,"the commit argument is not supported by #{SVN}")
       end
 
-      return false unless File.directory?(@trunk)
+      if File.directory?(@trunk)
+        File.mkdir(@tags) unless File.directory?(@tags)
 
-      File.mkdir(@tags) unless File.directory?(@tags)
-
-      svn(:cp,@trunk,File.join(@tags,name))
+        return run('cp',@trunk,File.join(@tags,name))
+      else
+        return false
+      end
     end
 
     #
@@ -340,9 +345,11 @@ module SCM
     def delete_tag(name)
       tag_dir = File.join(@tags,name)
 
-      return false unless File.directory?(tag_dir)
-
-      svn(:rm,tag_dir)
+      if File.directory?(tag_dir)
+        return run('rm',tag_dir)
+      else
+        return false
+      end
     end
 
     #
@@ -365,7 +372,7 @@ module SCM
         arguments += [*options[:paths]]
       end
 
-      svn(:log,*arguments)
+      return run('log',*arguments)
     end
 
     #
@@ -393,7 +400,7 @@ module SCM
       arguments = []
       arguments << '-f' if options[:force]
 
-      svn(:update,*arguments)
+      return run('update',*arguments)
     end
 
     #
@@ -446,7 +453,7 @@ module SCM
       message  = ''
       files    = []
 
-      io = popen('svn log',*arguments)
+      io = popen('log',*arguments)
 
       # eat the first LOG_SEPARATOR
       io.readline
@@ -492,28 +499,11 @@ module SCM
     def files
       return enum_for(:files) unless block_given?
 
-      popen('svn','ls','-R') do |file|
+      popen('ls','-R') do |file|
         yield file if File.file?(File.join(@path,file))
       end
+
       return nil
-    end
-
-    protected
-
-    #
-    # Runs a SVN command.
-    #
-    # @param [Symbol] command
-    #   The SVN command to run.
-    #
-    # @param [Array] arguments
-    #   Additional arguments to pass to the SVN command.
-    #
-    # @return [Boolean]
-    #   Specifies whether the SVN command exited successfully.
-    #
-    def svn(command,*arguments)
-      run(:svn,command,*arguments)
     end
 
   end
