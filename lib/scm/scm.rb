@@ -14,9 +14,10 @@ module SCM
 
   # Common URI schemes used to denote the SCM
   SCHEMES = {
-    'git' => Git,
-    'hg'  => Hg,
-    'svn' => SVN
+    'git'     => Git,
+    'hg'      => Hg,
+    'svn'     => SVN,
+    'svn+ssh' => SVN
   }
 
   # Common file extensions used to denote the SCM of a URI
